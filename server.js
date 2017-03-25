@@ -4,6 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const _ = require('lodash');
+const uuidV4 = require('uuid/v4');
 
 app.use(express.static(__dirname + '/public'));
 http.listen(port, () => console.log('listening on port ' + port));
@@ -30,11 +31,16 @@ for(var i = 0; i < map.x; i++){
 //Multiplayer settings
 function onConnection(socket){
     socket.emit('mapinit', plane);
-    var playerid = null;
+
     console.log('A player connected');
     socket.on('add user', function(player) {
-        playerid = player.id;
-        players.push(player);
+        player.id = uuidV4();
+        // socket.conn.id
+        console.log("smegma");
+        socket.player = player;
+        players.push(socket.player);
+        // console.log(players);
+        socket.emit('playerInfo', player);
     });
 
     socket.on('sailing', function(player) {
@@ -45,8 +51,9 @@ function onConnection(socket){
 
     socket.on('disconnect', function () {
         console.log('player disconnected');
-        players = _.remove(players, function(n){
-            n.id = playerid;
+        removed = _.remove(players, function(n){
+            return n.id == socket.player.id;
         });
+        console.log(players);
     });
 }

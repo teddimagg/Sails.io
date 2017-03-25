@@ -15,18 +15,18 @@ var map = {
 
 var playerlist;
 var player = {
-    x: 30,
-    y: 30,
+    x: 60,
+    y: 60,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0, rotate: 3},
+    speed: {sail: 0.1, rotate: 3}, //tiles per tick, degs per tick
     alive: false,
     health: 100
 }
 
 var plane = null;
 var goldplane = null;
-var debugMode = true;
+var debugMode = false;
 //Graphics variables
 var playerImg = new Image()
 playerImg.src = 'img/ship.png';
@@ -120,10 +120,11 @@ function draw(){
     //Exceeds the neseccary number to fill out our screen.
 
     //Number of tiles from center top sides
-    var viewport = {width: Math.ceil(width / tile.width / 2) - 1, height: Math.ceil(height / tile.height / 2)}
+    var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
+
     var range = {
         x: {
-            min: Math.floor(player.x - viewport.width),
+            min: Math.floor(player.x - viewport.width) + 1,
             max: Math.ceil(player.x + viewport.width)
         },
         y: {
@@ -196,7 +197,7 @@ function drawPlayers(){
     var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
     var range = {
         x: {
-            min: Math.floor(player.x - viewport.width),
+            min: Math.floor(player.x - viewport.width) + 1,
             max: Math.ceil(player.x + viewport.width)
         },
         y: {

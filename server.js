@@ -70,7 +70,9 @@ function onConnection(socket){
         console.log('player disconnected');
         var removed = _.remove(players, function(n){
             if(socket){
-                return n.id == socket.player.id;
+                if(socket.player){
+                    return n.id == socket.player.id;
+                }
             }
         });
         console.log(players);

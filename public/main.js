@@ -8,28 +8,20 @@ var tile = {
 
 //Game variables
 var map = {
-    x: 350,
-    y: 350
+    x: 50,
+    y: 50
 };
 
+var playerlist = null;
 var player = {
-    x: 100,
-    y: 100,
+    x: 50,
+    y: 50,
     curdir: 0,
     dir: 0,
     speed: {sail: 0.1, rotate: 3}
 }
 
-var plane = [];
-for(var i = 0; i < map.x; i++){
-    plane[i] = [];
-    for(var j = 0; j < map.y; j++){
-        plane[i][j] = Math.floor(Math.random() * 100);
-        // plane[i][j] = (Math.random() < .05) ? 1 : 0;
-    }
-}
-
-var players = [];
+var plane = null;
 
 //Graphics variables
 var playerImg = new Image()
@@ -49,9 +41,27 @@ islandImg4.onload = function() {console.log('island4 loaded')};
 
 //Event listeners
 document.addEventListener('DOMContentLoaded', init, false);
+var socket;
 
 function init(){
-    var socket = io();
+    socket = io();
+    player.id = Math.floor(Math.random() * 9999);
+    //Set socket listeners
+    socket.emit('add user', player);
+    socket.on('players', function(data){
+        console.log('playerlist updated')
+        playerlist = data;
+    });
+
+    socket.on('mapinit', function(data){
+        plane = data;
+    });
+
+    socket.on('shipfleet', function(players){
+        playerlist = players;
+    });
+
+    console.log(playerlist);
     canvas = document.querySelector('canvas');
     canvas.addEventListener('mousemove', mouseController, false);
 
@@ -63,11 +73,18 @@ function init(){
 }
 
 function tick(){
-    ctx.clearRect(0, 0, width, height);
-    drawBackground();
-    draw();
-    drawPlayer();
-    updateMovements();
+    if(plane && player){ //loading
+        ctx.clearRect(0, 0, width, height);
+        drawBackground();
+        draw();
+        drawPlayer();
+        if(playerlist){
+            if(playerlist.length > 1){
+                drawPlayers();
+            }
+        }
+        updateMovements();
+    }
 }
 
 function draw(){
@@ -117,35 +134,12 @@ function draw(){
                 // ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
             }
 
+
             i.y++;
         }
         i.y = 0;
         i.x++;
     }
-
-
-
-    // var viewWidthOffset = Math.ceil(width / tile.width / 2);
-    // var viewHeightOffset = Math.ceil(height / tile.height / 2);
-
-    // var startx = player.x - viewWidthOffset;
-    // var starty = player.y - viewHeightOffset;
-
-    // var viewport = {x: width / tile.width / 2, y: height / tile.height / 2};
-    // var viewoffset = {x: width % tile.width / 2, y: height % tile.height / 2};
-    // var playeroffset = {x: (player.x % 1).toFixed(2)/1, y: (player.y % 1).toFixed(2)/1};
-
-    // var offset = {x: player.x % 1, y: player.y % 1};
-    // for(var x = Math.floor(player.x) - viewWidthOffset - 1; x < Math.floor(player.x) + viewWidthOffset + 1; x++){
-    //     for(var y = Math.floor(player.y) - viewHeightOffset - 1; y < Math.floor(player.y) + viewHeightOffset + 1; y++){
-    //         if(plane[x][y]){
-    //             ctx.fillStyle = '#00007f';
-    //         } else {
-    //             ctx.fillStyle = '#0000b2';
-    //         }
-    //         ctx.fillRect((x - startx)*tile.width + viewoffset.x + (playeroffset.x * tile.width), (y-starty)*tile.height + viewoffset.y + (playeroffset.y * tile.height),tile.width, tile.height);
-    //     }
-    // }
 }
 
 function random(seed) {
@@ -159,6 +153,51 @@ function drawPlayer(){
     ctx.rotate(player.curdir * Math.PI / 180);
     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
     ctx.restore();
+}
+
+function drawPlayers(){
+    //Number of tiles from center top sides
+    var viewport = {width: Math.ceil(width / tile.width / 2) + 1, height: Math.ceil(height / tile.height / 2) + 1}
+    var range = {
+        x: {
+            min: Math.floor(player.x - viewport.width),
+            max: Math.ceil(player.x + viewport.width)
+        },
+        y: {
+            min: Math.floor(player.y - viewport.height),
+            max: Math.ceil(player.y + viewport.height)
+        }
+    }
+
+    //Positional offset and centering
+    var offset = {
+        player: {x: (player.x % 1) * tile.width, y: (player.y % 1) * tile.height },
+        center: {x: width % tile.width / 2, y: height % tile.height / 2}
+    }
+
+    var i = {
+        x: 0,
+        y: 0
+    }
+
+    // ctx.translate(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
+    // console.log(playerlist);
+
+    for(var i = 0; i < playerlist.length; i++){
+        if(playerlist[i].id != player.id){
+            if( [i].x > range.x.min && playerlist[i].x < range.x.max){
+                // var playeroffset = {x: (playerlist[i].x % 1) * tile.width, y: (playerlist[i].y % 1) * tile.height },
+                if(playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
+                    ctx.save();
+                    ctx.translate((playerlist[i].x - range.x.min - 2) * tile.width + offset.center.x - offset.player.x, (playerlist[i].y - range.y.min - 1) * tile.height + offset.center.y - offset.player.y);
+                    ctx.rotate(playerlist[i].curdir * Math.PI / 180);
+                    ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+                    ctx.restore();
+                }
+            }
+        }
+    }
+
 }
 
 function mouseController(event){
@@ -215,6 +254,9 @@ function updateMovements(){
         move.y = (1 - ratio) * player.speed.sail;
     }
     sail(move);
+    socket.emit('sailing', function(player){
+        console.log(data);
+    });
 }
 
 function drawBackground(){
@@ -225,4 +267,6 @@ function drawBackground(){
 function sail(move){
     player.x += move.x;
     player.y += move.y;
+
+    socket.emit('sailing', player);
 }

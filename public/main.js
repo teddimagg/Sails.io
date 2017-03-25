@@ -12,7 +12,7 @@ var map = {
     y: 50
 };
 
-var playerlist = null;
+var playerlist;
 var player = {
     x: 50,
     y: 50,
@@ -185,7 +185,7 @@ function drawPlayers(){
 
     for(var i = 0; i < playerlist.length; i++){
         if(playerlist[i].id != player.id){
-            if( [i].x > range.x.min && playerlist[i].x < range.x.max){
+            if(playerlist[i].x > range.x.min && playerlist[i].x < range.x.max){
                 // var playeroffset = {x: (playerlist[i].x % 1) * tile.width, y: (playerlist[i].y % 1) * tile.height },
                 if(playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
                     ctx.save();

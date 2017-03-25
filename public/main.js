@@ -19,7 +19,7 @@ var player = {
     y: 60,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0.1, rotate: 3}, //tiles per tick, degs per tick
+    speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
     alive: false,
     health: 100
 }

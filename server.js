@@ -37,6 +37,10 @@ for(var i = 0; i < map.x; i++){
     }
 }
 
+interval = setInterval(function(){
+    io.emit('shipfleet', players);
+}, 1000/60)
+
 //Multiplayer settings
 function onConnection(socket){
     socket.emit('mapinit', plane);
@@ -63,7 +67,7 @@ function onConnection(socket){
                 }
             }
         }
-        io.emit('shipfleet', players);
+
     });
 
     socket.on('disconnect', function () {

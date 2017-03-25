@@ -23,6 +23,7 @@ var player = {
 }
 
 var plane = null;
+var goldplane = null;
 
 //Graphics variables
 var playerImg = new Image()

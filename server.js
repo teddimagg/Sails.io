@@ -27,6 +27,14 @@ for(var i = 0; i < map.x; i++){
     }
 }
 
+var goldplane = [];
+for(var i = 0; i < map.x; i++){
+    goldplane[i] = [];
+    for(var j = 0; j < map.y; j++){
+        goldplane[i][j] = 0;
+    }
+}
+
 //Multiplayer settings
 function onConnection(socket){
     socket.emit('mapinit', plane);

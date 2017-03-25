@@ -62,13 +62,16 @@ function playerinit(){
 function init(){
     updateLeaderboard();
     socket = io();
-    player.id = Math.floor(Math.random() * 9999);
+    // player.id = Math.floor(Math.random() * 9999);
     //Set socket listeners
     socket.on('players', function(data){
         console.log('playerlist updated')
         playerlist = data;
     });
 
+    socket.on('playerInfo', function(p){
+        player = p;
+    });
     socket.on('mapinit', function(data){
         plane = data;
     });

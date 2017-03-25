@@ -1,0 +1,20 @@
+{
+  "name": "pirates.io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node node_modules/nodemon/bin/nodemon.js server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.2",
+    "jquery": "^3.2.1",
+    "node-static": "^0.7.9",
+    "nodemon": "^1.11.0",
+    "reload": "^1.1.1",
+    "socket.io": "^1.7.3"
+  }
+}

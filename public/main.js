@@ -236,14 +236,13 @@ function changeBackgroundColor(){
 
 function updateMovements(){
     var rotation = 0;
-
-    if(player.curdir < player.dir){
+    if(player.curdir < player.dir - player.speed.rotate){
         if(player.curdir < 90 && player.dir > 90 && (player.dir - player.curdir) > 180){
             rotation = -player.speed.rotate;
         } else {
             rotation = player.speed.rotate;
         }
-    } else {
+    } else if (player.curdir > player.dir + player.speed.rotate){
         if(player.curdir > 90 && player.dir < 90 && (player.curdir - player.dir) > 180){
             rotation = player.speed.rotate;
         } else {

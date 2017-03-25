@@ -8,23 +8,25 @@ var tile = {
 
 //Game variables
 var map = {
-    x: 50,
-    y: 50
+    x: 450,
+    y: 450,
+    buffer: 30
 };
 
 var playerlist;
 var player = {
-    x: 50,
-    y: 50,
+    x: 30,
+    y: 30,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0.1, rotate: 3},
-    alive: false
+    speed: {sail: 0, rotate: 3},
+    alive: false,
+    health: 100
 }
 
 var plane = null;
 var goldplane = null;
-
+var debugMode = true;
 //Graphics variables
 var playerImg = new Image()
 playerImg.src = 'img/ship.png';
@@ -44,8 +46,14 @@ islandImg4.onload = function() {console.log('island4 loaded')};
 //Event listeners
 document.addEventListener('DOMContentLoaded', init, false);
 
-$('.play').click(function(){
+$('#play').submit(function(event){
+    event.preventDefault();
     playerinit();
+});
+
+$( window ).resize(function() {
+    canvas.height = height = document.body.clientHeight;
+    canvas.width = width = document.body.clientWidth;
 });
 
 var socket;
@@ -57,6 +65,9 @@ function playerinit(){
         socket.emit('add user', player);
         $('.menu').hide();
     }
+    socket.on('shipfleet', function(players){
+        playerlist = players;
+    });
 }
 
 function init(){
@@ -74,10 +85,6 @@ function init(){
     });
     socket.on('mapinit', function(data){
         plane = data;
-    });
-
-    socket.on('shipfleet', function(players){
-        playerlist = players;
     });
 
     console.log(playerlist);
@@ -113,7 +120,7 @@ function draw(){
     //Exceeds the neseccary number to fill out our screen.
 
     //Number of tiles from center top sides
-    var viewport = {width: Math.ceil(width / tile.width / 2) + 1, height: Math.ceil(height / tile.height / 2) + 1}
+    var viewport = {width: Math.ceil(width / tile.width / 2) - 1, height: Math.ceil(height / tile.height / 2)}
     var range = {
         x: {
             min: Math.floor(player.x - viewport.width),
@@ -139,24 +146,31 @@ function draw(){
     for(var x = range.x.min; x < range.x.max; x++){
         for(var y = range.y.min; y < range.y.max; y++){
 
-            if(plane[x][y] < 5){
-                ctx.save();
-                ctx.translate(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
-                ctx.rotate(random(x + y) * 180 * Math.PI / 180);
-                switch(plane[x][y]){
-                    case 1: ctx.drawImage(islandImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                    case 2: ctx.drawImage(islandImg2, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                    case 3: ctx.drawImage(islandImg3, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                    case 4: ctx.drawImage(islandImg4, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+            if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
+                ctx.fillStyle = '#00007f';
+                ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
+            } else {
+                if(plane[x][y] < 5){
+                    ctx.save();
+                    ctx.translate(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
+                    ctx.rotate(random(x + y) * 180 * Math.PI / 180);
+                    switch(plane[x][y]){
+                        case 1: ctx.drawImage(islandImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+                        case 2: ctx.drawImage(islandImg2, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+                        case 3: ctx.drawImage(islandImg3, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+                        case 4: ctx.drawImage(islandImg4, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+                    }
+                    ctx.restore();
+
+                    // ctx.drawImage(islandImg, i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
+                    // ctx.fillStyle = '#00007f';
+                    // ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
                 }
-                ctx.restore();
-
-                // ctx.drawImage(islandImg, i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
-                // ctx.fillStyle = '#00007f';
-                // ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
             }
-
-
+            if(debugMode){
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(x + " - " + y, i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
+            }
             i.y++;
         }
         i.y = 0;
@@ -179,7 +193,7 @@ function drawPlayer(){
 
 function drawPlayers(){
     //Number of tiles from center top sides
-    var viewport = {width: Math.ceil(width / tile.width / 2) + 1, height: Math.ceil(height / tile.height / 2) + 1}
+    var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
     var range = {
         x: {
             min: Math.floor(player.x - viewport.width),
@@ -211,7 +225,7 @@ function drawPlayers(){
                 // var playeroffset = {x: (playerlist[i].x % 1) * tile.width, y: (playerlist[i].y % 1) * tile.height },
                 if(playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
                     ctx.save();
-                    ctx.translate((playerlist[i].x - range.x.min - 2) * tile.width + offset.center.x - offset.player.x, (playerlist[i].y - range.y.min - 1) * tile.height + offset.center.y - offset.player.y);
+                    ctx.translate((playerlist[i].x - range.x.min) * tile.width + offset.center.x - offset.player.x, (playerlist[i].y - range.y.min) * tile.height + offset.center.y - offset.player.y);
                     ctx.rotate(playerlist[i].curdir * Math.PI / 180);
                     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
                     ctx.restore();
@@ -288,6 +302,9 @@ function drawBackground(){
 function sail(move){
     player.x += move.x;
     player.y += move.y;
+    if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
+        printWarning();
+    }
 
     socket.emit('sailing', player);
 }

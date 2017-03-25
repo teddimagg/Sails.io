@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Sail|Source+Sans+Pro:400,700');
+
 * {
   box-sizing: border-box;
 }
@@ -20,27 +22,59 @@ html, body {
   top: 0;
 }
 
+h2 {
+  font-family: 'Sail', cursive;
+  color: white;
+  font-size: 38pt;
+  padding: 0;
+  margin: 0;
+}
+
+p {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 700;
+  font-size: 9pt;
+  color: rgba(0,0,0,0.5);
+}
+
 .menu {
   position: absolute;
   width: 400px;
   height: 300px;
   left: calc(50vw - 200px);
   top: calc(50vh - 150px);
-  background-color: rgba(0,0,0,0.4);
+  /*background-color: rgba(0,0,0,0.4);*/
   border-radius: 20px;
   text-align: center;
 }
 
 button {
   padding: 20px;
-  width: 50%;
+  width: 40%;
   position: absolute;
   bottom: 30px;
-  left: 25%;
+  left: 30%;
   background: none;
   border: 2px solid white;
+  border-radius: 25px;
+  cursor: pointer;
   color: white;
 }
+
+#name {
+  position: absolute;
+  width: 40%;
+  left: 30%;
+  padding: 15px;
+  bottom: 100px;
+  border: none;
+  background: none;
+  font-weight: 700;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: center;
+}
+
+#name:focus { outline: none; }
 
 .users {
   position: absolute;

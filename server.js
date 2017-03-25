@@ -11,6 +11,7 @@ http.listen(port, () => console.log('listening on port ' + port));
 
 io.on('connection', onConnection);
 
+const debugMode = true;
 var players = [];
 
 var map = {
@@ -43,8 +44,6 @@ function onConnection(socket){
     console.log('A player connected');
     socket.on('add user', function(player) {
         player.id = uuidV4();
-        // socket.conn.id
-        console.log("smegma");
         socket.player = player;
         players.push(socket.player);
         // console.log(players);
@@ -54,13 +53,25 @@ function onConnection(socket){
     socket.on('sailing', function(player) {
         playerid = player.id;
         players[_.findIndex(players, {'id': player.id})] = player;
+        if(!debugMode){
+            for(var i in players){
+                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+                    var removed = _.remove(players, function(n){
+                        return n.id == socket.player.id || n.id == players[i].id;
+                    });
+                    console.log('collision ' + socket.player.name + " removed");
+                }
+            }
+        }
         socket.emit('shipfleet', players);
     });
 
     socket.on('disconnect', function () {
         console.log('player disconnected');
-        removed = _.remove(players, function(n){
-            return n.id == socket.player.id;
+        var removed = _.remove(players, function(n){
+            if(socket){
+                return n.id == socket.player.id;
+            }
         });
         console.log(players);
     });

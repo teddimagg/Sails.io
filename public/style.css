@@ -3,17 +3,54 @@
 }
 
 html, body {
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   margin: 0;
   padding: 0;
+  position: relative;
 }
 
 #canvas {
   height: 100vh;
   width: 100vw;
-  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   top: 0;
+}
+
+.menu {
+  position: absolute;
+  width: 400px;
+  height: 300px;
+  left: calc(50vw - 200px);
+  top: calc(50vh - 150px);
+  background-color: rgba(0,0,0,0.4);
+  border-radius: 20px;
+  text-align: center;
+}
+
+button {
+  padding: 20px;
+  width: 50%;
+  position: absolute;
+  bottom: 30px;
+  left: 25%;
+  background: none;
+  border: 2px solid white;
+  color: white;
+}
+
+.users {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 300px;
+  width: 180px;
+  background-color: rgba(255,255,255,0.2);
+}
+
+.userlist {
+
 }

@@ -18,7 +18,8 @@ var player = {
     y: 50,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0.1, rotate: 3}
+    speed: {sail: 0.1, rotate: 3},
+    alive: false
 }
 
 var plane = null;
@@ -41,13 +42,27 @@ islandImg4.onload = function() {console.log('island4 loaded')};
 
 //Event listeners
 document.addEventListener('DOMContentLoaded', init, false);
+
+$('.play').click(function(){
+    playerinit();
+});
+
 var socket;
 
+function playerinit(){
+    player.name = $('#name').val();
+    if(player.name){
+        player.alive = true;
+        socket.emit('add user', player);
+        $('.menu').hide();
+    }
+}
+
 function init(){
+    updateLeaderboard();
     socket = io();
     player.id = Math.floor(Math.random() * 9999);
     //Set socket listeners
-    socket.emit('add user', player);
     socket.on('players', function(data){
         console.log('playerlist updated')
         playerlist = data;
@@ -69,7 +84,7 @@ function init(){
 
     canvas.height = height = document.body.clientHeight;
     canvas.width = width = document.body.clientWidth;
-    interval = window.setInterval(tick, 20);
+    interval = window.setInterval(tick, 1000 / 60);
 }
 
 function tick(){
@@ -77,13 +92,16 @@ function tick(){
         ctx.clearRect(0, 0, width, height);
         drawBackground();
         draw();
-        drawPlayer();
         if(playerlist){
             if(playerlist.length > 1){
                 drawPlayers();
             }
         }
-        updateMovements();
+        if(player.alive){
+            drawPlayer();
+            updateMovements();
+        }
+        updateLeaderboard();
     }
 }
 
@@ -269,4 +287,12 @@ function sail(move){
     player.y += move.y;
 
     socket.emit('sailing', player);
+}
+
+function updateLeaderboard(){
+    var html = '';
+    for(var i in playerlist){
+        html += '<li>' + playerlist[i].name + '</li>'
+    }
+    $('.userlist').html(html);
 }

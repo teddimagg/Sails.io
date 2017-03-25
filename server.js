@@ -13,8 +13,8 @@ io.on('connection', onConnection);
 var players = [];
 
 var map = {
-    x: 150,
-    y: 150
+    x: 450,
+    y: 450
 };
 
 //Game setting initiation
@@ -29,12 +29,12 @@ for(var i = 0; i < map.x; i++){
 
 //Multiplayer settings
 function onConnection(socket){
+    socket.emit('mapinit', plane);
     var playerid = null;
     console.log('A player connected');
     socket.on('add user', function(player) {
         playerid = player.id;
         players.push(player);
-        socket.emit('mapinit', plane);
     });
 
     socket.on('sailing', function(player) {
@@ -43,11 +43,10 @@ function onConnection(socket){
         socket.emit('shipfleet', players);
     });
 
-    // socket.on('disconnect', function () {
-    //     setTimeout(function () {
-    //         players = _.remove(players, function(n){
-    //             n.id = playerid;
-    //         });
-    //     }, 10000);
-    // });
+    socket.on('disconnect', function () {
+        console.log('player disconnected');
+        players = _.remove(players, function(n){
+            n.id = playerid;
+        });
+    });
 }

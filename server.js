@@ -63,7 +63,7 @@ function onConnection(socket){
                 }
             }
         }
-        socket.emit('shipfleet', players);
+        io.emit('shipfleet', players);
     });
 
     socket.on('disconnect', function () {

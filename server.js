@@ -103,7 +103,7 @@ function onConnection(socket){
             dir: 0,
             speed: {sail: 0.035, rotate: 1.5}, //tiles per tick, degs per tick
             alive: true,
-            health: 1,
+            health: 100,
             name: name,
             attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}}
         };

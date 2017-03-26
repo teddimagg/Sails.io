@@ -81,7 +81,7 @@ var _crashislanpain = 0.5;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (3) / _tickrate; //2.1 tiles per second
+var _initspeed = (0) / _tickrate; //2.1 tiles per second
 var _initrotatespeed = 1.5 //deg per frame
 var _crashpenalty = 0.7; //down 30%
 var _sprintspeed = 1.5 * _initspeed;
@@ -220,7 +220,7 @@ function onConnection(socket){
                                 players[i].health -= _firedamage;
                                 players[i].lasttouch = player.name;
                                 if(players[i].health <= 0){
-                                    player.score += _killscore_
+                                    player.score += _killscore
                                     ;
                                 }
                             }

@@ -139,3 +139,11 @@ button {
   color: rgb(180,61,11);
   transition: all 0.3s ease-in-out;
 }
+
+.instructor {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: white;
+  font-family: 'Source Sans Pro', sans-serif;
+}

@@ -8,7 +8,7 @@ var tile = {
     height: 95  //px
 }
 
-var debugMode = true;
+var debugMode = false;
 
 // ------------------------------------------------------------------------------------- //
     //  GAME VARIABLES
@@ -23,11 +23,11 @@ var playerlist;
 var player = {
     // x: Math.ceil(Math.random() * 330) + 60,
     // y: Math.ceil(Math.random() * 330) + 60,
-    x: 120,
-    y: 120,
+    x: 120.3,
+    y: 120.3,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0, rotate: 1}, //tiles per tick, degs per tick
+    speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
     alive: false,
     health: 100
 }
@@ -181,12 +181,14 @@ function draw(){
 
     if(viewport.width % 2 == 1){
         offset.center.x = width % tile.width / 2;
-    } else {
+        if((player.x % 1) > 0.5){ range.x.min--; } //Odd number correction
+    } else { //working
         offset.center.x = (width / 2) % tile.width;
     }
     if(viewport.height % 2 == 1){
         offset.center.y = height % tile.height / 2;
-    } else {
+        if((player.y % 1) > 0.5){ range.y.min--; } //Odd number correction
+    } else { //working
         offset.center.y = (height / 2) % tile.height;
     }
 
@@ -198,7 +200,7 @@ function draw(){
         y: 0
     }
 
-    if(once){
+    if(once && debugMode){
         console.log(width, height);
         console.log(viewport);
         console.log(range);
@@ -208,10 +210,36 @@ function draw(){
 
     for(var x = range.x.min; x <= range.x.max; x++){
         for(var y = range.y.min; y <= range.y.max; y++){
+            if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
+                ctx.fillStyle = '#00007f';
+                ctx.fillRect(
+                    i.x * tile.width  - offset.center.x - offset.player.x, //xpos
+                    i.y * tile.height - offset.center.y - offset.player.y, //ypos
+                    tile.width, tile.height //x,y size
+                );
+            } else {
+                if(plane[x][y] < 5){
+                    ctx.save();
+                    ctx.translate(
+                        i.x * tile.width  - offset.center.x - offset.player.x + tile.width/2, //x
+                        i.y * tile.height - offset.center.y - offset.player.y + tile.height/2 //y
+                    );
+                    ctx.rotate(random(x + y) * 180 * Math.PI / 180);
+                    switch(plane[x][y]){
+                        case 0: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 1: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 2: ctx.drawImage(islandImg2, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 3: ctx.drawImage(islandImg3, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 4: ctx.drawImage(islandImg4, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                    }
+                    ctx.restore();
+                }
+            }
+
             if(debugMode){
                 ctx.fillStyle = '#ffffff';
-                ctx.drawImage(debugImg    , i.x * tile.width - offset.center.x    , i.y * tile.height - offset.center.y     , tile.width, tile.height);
-                ctx.fillText(x + " - " + y, i.x * tile.width - offset.center.x + 5, i.y * tile.height - offset.center.y + 15, tile.width, tile.height);
+                ctx.drawImage(debugImg    , i.x * tile.width - offset.center.x - offset.player.x    , i.y * tile.height - offset.center.y - offset.player.y     , tile.width, tile.height);
+                ctx.fillText(x + " - " + y, i.x * tile.width - offset.center.x - offset.player.x + 5, i.y * tile.height - offset.center.y - offset.player.y + 15, tile.width, tile.height);
             }
             i.y++;
         }
@@ -238,7 +266,7 @@ function drawPlayers(){
     var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
     var range = {
         x: {
-            min: Math.floor(player.x - viewport.width) + 1,
+            min: Math.floor(player.x - viewport.width),
             max: Math.ceil(player.x + viewport.width)
         },
         y: {

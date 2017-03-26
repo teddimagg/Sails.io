@@ -105,10 +105,6 @@ function init(){
         player = p;
     });
 
-    // socket.on('golds', function(data){
-    //     golds = data;
-    // });
-
     socket.on('mapinit', function(data){
         plane = data;
     });
@@ -482,6 +478,8 @@ function updateMovements(){
 }
 
 function gameReset(){
+    gameMessage('You were killed by ' + player.lasttouch);
+
     player = {
         //init only for lobby purposes
         x: Math.ceil(Math.random() * 330) + 60,
@@ -512,9 +510,19 @@ function keyController(event){
 function updateLeaderboard(){
     var html = '';
     for(var i in playerlist){
-        html += '<li>' + playerlist[i].name + '</li>'
+        html += '<li>' + playerlist[i].name + ' - <b>' + playerlist[i].score +  '</b></li>'
     }
 
     $('.userlist').html(html);
     $('.health').css('width', player.health + '%');
+}
+
+function gameMessage(text){
+    $('.gameMessage h3').text(text);
+    $('.gameMessage').show();
+    console.log('setting message');
+    setTimeout(function(){
+        $('.gameMessage').hide();
+        $('.gameMessage h3').text('');
+    }, 5000);
 }

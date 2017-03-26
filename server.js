@@ -61,7 +61,6 @@ for(var i = 0; i < map.x; i++){
     plane[i] = [];
     for(var j = 0; j < map.y; j++){
         plane[i][j] = Math.floor(Math.random() * 100);
-        // plane[i][j] = (Math.random() < .05) ? 1 : 0;
     }
 }
 
@@ -106,7 +105,9 @@ function onConnection(socket){
             alive: true,
             health: 100,
             name: name,
-            attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}}
+            attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}},
+            score: 0,
+            lasttouch: 'yourself'
         };
         player.id = uuidV4();
         players.push(socket.player);
@@ -143,6 +144,7 @@ function onConnection(socket){
                 if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
                     player.health -= _crashplayerpain;
                     player = crash(player);
+                    player.lasttouch = players[i].name;
                 }
             }
 
@@ -156,6 +158,10 @@ function onConnection(socket){
                             if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
                                 console.log(player.name + ' hitti ' + players[i].name);
                                 players[i].health -= _firedamage;
+                                players[i].lasttouch = player.name;
+                                if(players[i].health <= 0){
+                                    player.score++;
+                                }
                             }
                         }
                     }
@@ -170,6 +176,10 @@ function onConnection(socket){
                             if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
                                 console.log(player.name + ' hitti ' + players[i].name);
                                 players[i].health -= _firedamage;
+                                players[i].lasttouch = player.name;
+                                if(players[i].health <= 0){
+                                    player.score++;
+                                }
                             }
                         }
                     }
@@ -181,6 +191,7 @@ function onConnection(socket){
             socket.emit('playerInfo', player);
         } else {
             if(player){
+                console.log(player.name + " was killed by " + player.lasttouch);
                 player.alive = false;
                 _.remove(players, function(p){
                     return socket.player.id == p.id;

@@ -8,7 +8,7 @@ var tile = {
     height: 95  //px
 }
 
-var debugMode = false;
+var debugMode = true;
 
 // ------------------------------------------------------------------------------------- //
     //  GAME VARIABLES
@@ -27,7 +27,7 @@ var player = {
     y: 120,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
+    speed: {sail: 0, rotate: 1}, //tiles per tick, degs per tick
     alive: false,
     health: 100
 }
@@ -55,6 +55,11 @@ islandImg2.onload = function() {console.log('island2 loaded')};
 islandImg3.onload = function() {console.log('island3 loaded')};
 islandImg4.onload = function() {console.log('island4 loaded')};
 
+//Debug
+var debugImg = new Image();
+debugImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Square_with_corners.svg/2000px-Square_with_corners.svg.png';
+debugImg.onload = function() {console.log('debug loaded')};
+
 // ------------------------------------------------------------------------------------- //
     //  LISTENERS AND INITIATORS
 // ------------------------------------------------------------------------------------- //
@@ -81,9 +86,6 @@ function playerinit(){
         socket.emit('add user', player);
         $('.menu').hide();
     }
-    socket.on('shipfleet', function(players){
-        playerlist = players;
-    });
 }
 
 function init(){
@@ -99,12 +101,16 @@ function init(){
     socket.on('playerInfo', function(p){
         player = p;
     });
+
     socket.on('mapinit', function(data){
         plane = data;
         console.log(data);
     });
 
-    console.log(playerlist);
+    socket.on('shipfleet', function(players){
+        playerlist = players;
+    });
+
     canvas = document.querySelector('canvas');
     canvas.addEventListener('mousemove', mouseController, false);
 
@@ -112,6 +118,7 @@ function init(){
 
     canvas.height = height = document.body.clientHeight;
     canvas.width = width = document.body.clientWidth;
+
     interval = window.setInterval(tick, 1000 / 60);
 }
 
@@ -121,7 +128,7 @@ function tick(){
         drawBackground();
         draw();
         if(playerlist){
-            if(playerlist.length > 1){
+            if(playerlist.length > 0){
                 drawPlayers();
             }
         }
@@ -144,64 +151,67 @@ function mouseController(event){
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICS ENGINE
 // ------------------------------------------------------------------------------------- //
+var once = true;
 
 function draw(){
     //Exceeds the neseccary number to fill out our screen.
 
     //Number of tiles from center top sides
-    var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
+    var viewport = {width: Math.ceil(width / tile.width), height: Math.ceil(height / tile.height)}
+    //if(viewport.height % 2 == 0){ viewport.height++ };
+    //if(viewport.width % 2 == 0){ viewport.width++ };
 
     var range = {
         x: {
-            min: Math.floor(player.x - viewport.width) + 1,
-            max: Math.ceil(player.x + viewport.width)
+            min: Math.floor(player.x - viewport.width / 2),
+            max: Math.floor(player.x + viewport.width / 2)
         },
         y: {
-            min: Math.floor(player.y - viewport.height),
-            max: Math.ceil(player.y + viewport.height)
+            min: Math.floor(player.y - viewport.height / 2),
+            max: Math.floor(player.y + viewport.height / 2)
         }
     }
 
     //Positional offset and centering
     var offset = {
         player: {x: (player.x % 1) * tile.width, y: (player.y % 1) * tile.height },
-        center: {x: width % tile.width / 2, y: height % tile.height / 2}
+        center: {}
     }
+
+
+    if(viewport.width % 2 == 1){
+        offset.center.x = width % tile.width / 2;
+    } else {
+        offset.center.x = (width / 2) % tile.width;
+    }
+    if(viewport.height % 2 == 1){
+        offset.center.y = height % tile.height / 2;
+    } else {
+        offset.center.y = (height / 2) % tile.height;
+    }
+
+    if(offset.center.x){ offset.center.x = tile.width - offset.center.x; }
+    if(offset.center.y){ offset.center.y = tile.height - offset.center.y; }
 
     var i = {
         x: 0,
         y: 0
     }
 
-    for(var x = range.x.min; x < range.x.max; x++){
-        for(var y = range.y.min; y < range.y.max; y++){
+    if(once){
+        console.log(width, height);
+        console.log(viewport);
+        console.log(range);
+        console.log(offset);
+        once = false;
+    }
 
-            if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
-                ctx.fillStyle = '#00007f';
-                ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
-            } else {
-                if(plane[x][y] < 5){
-                    ctx.save();
-                    ctx.translate(i.x * tile.width + offset.center.x - offset.player.x + tile.width/2, i.y * tile.height + offset.center.y - offset.player.y + tile.height/2);
-                    ctx.rotate(random(x + y) * 180 * Math.PI / 180);
-                    // ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height)
-                    switch(plane[x][y]){
-                        case 0: ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 1: ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 2: ctx.drawImage(islandImg2, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 3: ctx.drawImage(islandImg3, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 4: ctx.drawImage(islandImg4, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                    }
-                    ctx.restore();
-
-                    // ctx.drawImage(islandImg, i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
-                    // ctx.fillStyle = '#00007f';
-                    // ctx.fillRect(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y, tile.width, tile.height);
-                }
-            }
+    for(var x = range.x.min; x <= range.x.max; x++){
+        for(var y = range.y.min; y <= range.y.max; y++){
             if(debugMode){
                 ctx.fillStyle = '#ffffff';
-                ctx.fillText(x + " - " + y, i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
+                ctx.drawImage(debugImg    , i.x * tile.width - offset.center.x    , i.y * tile.height - offset.center.y     , tile.width, tile.height);
+                ctx.fillText(x + " - " + y, i.x * tile.width - offset.center.x + 5, i.y * tile.height - offset.center.y + 15, tile.width, tile.height);
             }
             i.y++;
         }

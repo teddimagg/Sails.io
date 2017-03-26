@@ -69,7 +69,8 @@ $(document).ready(function(){
     if(document.cookie !== undefined){
         var name = getCookie('cachedUsername');
         if(name){
-            $('#name').val(name.replace(/%20/g, " "));
+            console.log(decodeURI(name));
+            $('#name').val(decodeURI(name));
         }
     }
 });

@@ -130,10 +130,6 @@ function init(){
         player = p;
     });
 
-    // socket.on('golds', function(data){
-    //     golds = data;
-    // });
-
     socket.on('mapinit', function(data){
         plane = data;
     });
@@ -312,6 +308,27 @@ function drawPlayer(){
         1.125*Math.PI);
     ctx.stroke();
 
+    ctx.strokeStyle = 'rgba(0,0,0,0.09)';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    var rcooldown = 0.125 - (player.attack.right.cooldown / 180 * 0.25);
+    ctx.arc(
+        0,
+        0,
+        200,
+        rcooldown*Math.PI,
+        0.125*Math.PI);
+    ctx.stroke();
+    var lcooldown = 0.875 + (player.attack.left.cooldown / 180 * 0.25);
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        0,
+        200,
+        0.875*Math.PI,
+        lcooldown*Math.PI);
+    ctx.stroke();
+
     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
     ctx.restore();
 }
@@ -360,7 +377,46 @@ function drawPlayers(){
                     (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.left.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.left.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, (10 - Math.floor(playerlist[i].attack.left.progr)) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.restore();
+            } else if (playerlist[i].attack.left.progr && playerlist[i].attack.left.progr > 0){
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].attack.left.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].attack.left.origy - range.y.min) * tile.height - offset.center.y - offset.player.y
+                );   //Y
+
+                var travelx, travely;
+                var perc = (1 - (playerlist[i].attack.left.progr - 10) / 12);
+                console.log(playerlist[i].attack.left.progr);
+
+                if(playerlist[i].attack.left.x > playerlist[i].attack.left.origx){
+                    travelx = playerlist[i].attack.left.origx - playerlist[i].attack.left.x;
+                } else {
+                    travelx = playerlist[i].attack.left.x - playerlist[i].attack.left.origx;
+                }
+
+                if(playerlist[i].attack.left.y > playerlist[i].attack.left.origy){
+                    travely = playerlist[i].attack.left.origy - playerlist[i].attack.left.y;
+                } else {
+                    travely = playerlist[i].attack.left.y - playerlist[i].attack.left.origy;
+                }
+
+                if(player.dir > 90){ travelx = -travelx; }
+                if(player.dir < 0 || player.dir > 180){ travely = -travely; }
+
+                travelx *= perc * tile.width;
+                travely *= perc * tile.height;
+
+                ctx.beginPath();
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.arc(
+                    travelx,
+                    travely,
+                    tile.width / 20,
+                    0*Math.PI,
+                    4*Math.PI);
+                ctx.fill();
                 ctx.restore();
             }
 
@@ -370,57 +426,49 @@ function drawPlayers(){
                     (playerlist[i].attack.right.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.right.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.right.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, (10 - Math.floor(playerlist[i].attack.right.progr)) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.restore();
+            } else if (playerlist[i].attack.right.progr && playerlist[i].attack.right.progr > 0){
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].attack.right.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].attack.right.origy - range.y.min) * tile.height - offset.center.y - offset.player.y
+                );   //Y
+
+                var travelx, travely;
+                var perc = (1 - (playerlist[i].attack.right.progr - 10) / 12);
+                console.log(playerlist[i].attack.right.progr);
+
+                if(playerlist[i].attack.right.x > playerlist[i].attack.right.origx){
+                    travelx = playerlist[i].attack.right.origx - playerlist[i].attack.right.x;
+                } else {
+                    travelx = playerlist[i].attack.right.x - playerlist[i].attack.right.origx;
+                }
+
+                if(playerlist[i].attack.right.y > playerlist[i].attack.right.origy){
+                    travely = playerlist[i].attack.right.origy - playerlist[i].attack.right.y;
+                } else {
+                    travely = playerlist[i].attack.right.y - playerlist[i].attack.right.origy;
+                }
+
+                if(player.dir < 90){ travelx = -travelx; }
+                if(player.dir > 0 && player.dir < 180){ travely = -travely; }
+
+                travelx *= perc * tile.width;
+                travely *= perc * tile.height;
+
+                ctx.beginPath();
+                ctx.fillStyle = 'rgb(0,0,0)';
+                ctx.arc(
+                    travelx,
+                    travely,
+                    tile.width / 20,
+                    0*Math.PI,
+                    4*Math.PI);
+                ctx.fill();
                 ctx.restore();
             }
 
-            // if(playerlist[i].attack.left.progr){
-            //     ctx.save();
-            //     ctx.translate(
-            //         (playerlist[i].attack.left.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
-            //         (playerlist[i].attack.left.origy - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
-            //     );
-            //     ctx.fillStyle = '#ffffff';
-            //     ctx.beginPath();
-            //     ctx.moveTo(0,0);
-            //     ctx.lineTo((playerlist[i].attack.left.x - playerlist[i].attack.left.origx) * tile.width, (playerlist[i].attack.left.y - playerlist[i].attack.left.origy) * tile.height);
-            //     ctx.stroke();
-            //     ctx.restore();
-            // }
-
-            // if(playerlist[i].attack.right.progr){
-            //     ctx.save();
-            //     ctx.translate(
-            //         (playerlist[i].attack.right.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
-            //         (playerlist[i].attack.right.origy - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
-            //     );
-            //     ctx.fillStyle = '#ffffff';
-            //     ctx.beginPath();
-            //     ctx.moveTo(0,0);
-            //     ctx.lineTo((playerlist[i].attack.right.x - playerlist[i].attack.right.origx) * tile.width, (playerlist[i].attack.right.y - playerlist[i].attack.right.origy) * tile.height);
-            //     ctx.stroke();
-            //     ctx.restore();
-            // }
-
-
-            // ctx.rotate(playerlist[i].curdir * Math.PI / 180);
-            // ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
-            // ctx.restore();
-
-            // ctx.save();
-            // ctx.translate(
-            //     (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
-            //     (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
-            // );
-            // //Drawing name and healthbar
-            // ctx.fillStyle = 'rgba(50,205,50,0.5)';
-            // ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 10);
-            // ctx.fillStyle = '#32CD32';
-            // ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
-            // ctx.fillStyle = '#ffffff';
-            // ctx.textAlign="center";
-            // ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
-            // ctx.restore();
         }
     }
 }
@@ -455,6 +503,8 @@ function updateMovements(){
 }
 
 function gameReset(){
+    gameMessage('You were killed by ' + player.lasttouch);
+
     player = {
         //init only for lobby purposes
         x: Math.ceil(Math.random() * 330) + 60,
@@ -485,9 +535,19 @@ function keyController(event){
 function updateLeaderboard(){
     var html = '';
     for(var i in playerlist){
-        html += '<li>' + playerlist[i].name + '</li>'
+        html += '<li>' + playerlist[i].name + ' - <b>' + playerlist[i].score +  '</b></li>'
     }
 
     $('.userlist').html(html);
     $('.health').css('width', player.health + '%');
+}
+
+function gameMessage(text){
+    $('.gameMessage h3').text(text);
+    $('.gameMessage').show();
+    console.log('setting message');
+    setTimeout(function(){
+        $('.gameMessage').hide();
+        $('.gameMessage h3').text('');
+    }, 5000);
 }

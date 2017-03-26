@@ -117,3 +117,20 @@ button {
   background-color: #78d34e;
   transition: all 0.1s ease-in-out;
 }
+
+.gameMessage {
+  position: absolute;
+  display: none;
+  right: 25%;
+  top: 5%;
+  width: 50%;
+  height: 80px;
+}
+
+.gameMessage h3 {
+  width: 100%;
+  text-align: center;
+  font-family: 'Source Sans Pro', sans-serif;
+  color: rgb(180,61,11);
+  transition: all 0.3s ease-in-out;
+}

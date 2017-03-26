@@ -54,20 +54,72 @@ function onConnection(socket){
         socket.emit('playerInfo', player);
     });
 
-    socket.on('sailing', function(player) {
-        playerid = player.id;
-        players[_.findIndex(players, {'id': player.id})] = player;
-        if(!debugMode){
-            for(var i in players){
-                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-                    var removed = _.remove(players, function(n){
-                        return n.id == socket.player.id || n.id == players[i].id;
-                    });
-                    console.log('collision ' + socket.player.name + " removed");
-                }
+    socket.on('sailing', function(dir) {
+        playerid = socket.player.id;
+
+        var player = socket.player;
+        player.dir = dir;
+
+        var rotation = 0;
+        if(player.curdir < player.dir - player.speed.rotate){
+            if(player.curdir < 90 && player.dir > 90 && (player.dir - player.curdir) > 180){
+                rotation = -player.speed.rotate;
+            } else {
+                rotation = player.speed.rotate;
+            }
+        } else if (player.curdir > player.dir + player.speed.rotate){
+            if(player.curdir > 90 && player.dir < 90 && (player.curdir - player.dir) > 180){
+                rotation = player.speed.rotate;
+            } else {
+                rotation = -player.speed.rotate;
             }
         }
 
+
+        player.curdir += rotation;
+        if(player.curdir > 270){player.curdir = -90}
+        if(player.curdir < -90){player.curdir = 270}
+
+        var move = {x: 0, y: 0};
+        if(player.curdir < 0){
+            var ratio = player.curdir / -90 ;
+            move.x = -ratio * player.speed.sail;
+            move.y = -(1 - ratio) * player.speed.sail;
+        } else if(player.curdir < 90) {
+            var ratio = player.curdir / 90 ;
+            move.x = ratio * player.speed.sail;
+            move.y = -(1 - ratio) * player.speed.sail;
+        } else if(player.curdir < 180) {
+            var ratio = (player.curdir - 90) / 90 ;
+            move.x = (1 - ratio) * player.speed.sail;
+            move.y = ratio * player.speed.sail;
+        } else {
+            var ratio = (player.curdir - 180) / 90 ;
+            move.x = -ratio * player.speed.sail;
+            move.y = (1 - ratio) * player.speed.sail;
+        }
+
+        player.x += move.x;
+        player.y += move.y;
+        if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
+
+        }
+
+        players[_.findIndex(players, {'id': player.id})] = socket.player = player;
+
+
+        //COLLISION CHECK
+        // if(!debugMode){
+        //     for(var i in players){
+        //         if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+        //             var removed = _.remove(players, function(n){
+        //                 return n.id == socket.player.id || n.id == players[i].id;
+        //             });
+        //             console.log('collision ' + socket.player.name + " removed");
+        //         }
+        //     }
+        // }
+        socket.emit('playerInfo', player);
     });
 
     socket.on('disconnect', function () {

@@ -150,7 +150,7 @@ function onConnection(socket){
 
             if(player.attack.left.progr){
                 player.attack.left.progr--
-                if(player.attack.left.progr <= 7){
+                if(player.attack.left.progr <= 0){
                     for(i in players){
                         if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
                             if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
@@ -164,7 +164,7 @@ function onConnection(socket){
             if(player.attack.left.cooldown){ player.attack.left.cooldown--}
             if(player.attack.right.progr){
                 player.attack.right.progr--
-                if(player.attack.right.progr <= 7){
+                if(player.attack.right.progr <= 0){
                     for(i in players){
                         if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
                             if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){

@@ -8,7 +8,7 @@ var tile = {
     height: 95  //px
 }
 
-var debugMode = false;
+var debugMode = true;
 var range, offset;
 
 // ------------------------------------------------------------------------------------- //

@@ -67,14 +67,19 @@ document.addEventListener('keydown', keyController, false);
 
 $(document).ready(function(){
     if(document.cookie !== undefined){
-        //TODO: find value by cookie name.....
-        //works only if 1 cookie is present..
-        var name = document.cookie.split('=')[1];
+        var name = getCookie('cachedUsername');
         if(name){
             $('#name').val(name.replace(/%20/g, " "));
         }
     }
 });
+
+function getCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+  if (parts.length == 2) return parts.pop().split(";").shift();
+}
+
 
 $('#play').submit(function(event){
     event.preventDefault();

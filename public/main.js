@@ -9,6 +9,7 @@ var tile = {
 }
 
 var debugMode = false;
+var range, offset;
 
 // ------------------------------------------------------------------------------------- //
     //  GAME VARIABLES
@@ -154,14 +155,9 @@ function mouseController(event){
 var once = true;
 
 function draw(){
-    //Exceeds the neseccary number to fill out our screen.
-
-    //Number of tiles from center top sides
+    //Number of tiles from center to sides
     var viewport = {width: Math.ceil(width / tile.width), height: Math.ceil(height / tile.height)}
-    //if(viewport.height % 2 == 0){ viewport.height++ };
-    //if(viewport.width % 2 == 0){ viewport.width++ };
-
-    var range = {
+    range = {
         x: {
             min: Math.floor(player.x - viewport.width / 2),
             max: Math.floor(player.x + viewport.width / 2)
@@ -173,33 +169,25 @@ function draw(){
     }
 
     //Positional offset and centering
-    var offset = {
+    offset = {
         player: {x: (player.x % 1) * tile.width, y: (player.y % 1) * tile.height },
         center: {}
     }
 
-
+    //Odd vs even viewport corrections
     if(viewport.width % 2 == 1){
         offset.center.x = width % tile.width / 2;
         if((player.x % 1) > 0.5){ range.x.min--; } //Odd number correction
-    } else { //working
-        offset.center.x = (width / 2) % tile.width;
-    }
+    } else { offset.center.x = (width / 2) % tile.width; }
     if(viewport.height % 2 == 1){
         offset.center.y = height % tile.height / 2;
         if((player.y % 1) > 0.5){ range.y.min--; } //Odd number correction
-    } else { //working
-        offset.center.y = (height / 2) % tile.height;
-    }
+    } else { offset.center.y = (height / 2) % tile.height; }
 
     if(offset.center.x){ offset.center.x = tile.width - offset.center.x; }
     if(offset.center.y){ offset.center.y = tile.height - offset.center.y; }
 
-    var i = {
-        x: 0,
-        y: 0
-    }
-
+    //Debug menu
     if(once && debugMode){
         console.log(width, height);
         console.log(viewport);
@@ -208,8 +196,16 @@ function draw(){
         once = false;
     }
 
+    //Secondary iterators
+    var i = {
+        x: 0,
+        y: 0
+    }
+
+    //The screen loop
     for(var x = range.x.min; x <= range.x.max; x++){
         for(var y = range.y.min; y <= range.y.max; y++){
+            //Out of boundaries printing
             if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
                 ctx.fillStyle = '#00007f';
                 ctx.fillRect(
@@ -262,44 +258,19 @@ function drawPlayer(){
 }
 
 function drawPlayers(){
-    //Number of tiles from center top sides
-    var viewport = {width: Math.ceil(width / tile.width / 2), height: Math.ceil(height / tile.height / 2)}
-    var range = {
-        x: {
-            min: Math.floor(player.x - viewport.width),
-            max: Math.ceil(player.x + viewport.width)
-        },
-        y: {
-            min: Math.floor(player.y - viewport.height),
-            max: Math.ceil(player.y + viewport.height)
-        }
-    }
-
     //Positional offset and centering
-    var offset = {
-        player: {x: (player.x % 1) * tile.width, y: (player.y % 1) * tile.height },
-        center: {x: width % tile.width / 2, y: height % tile.height / 2}
-    }
-
-    var i = {
-        x: 0,
-        y: 0
-    }
-
-    // ctx.translate(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
-    // console.log(playerlist);
-
     for(var i = 0; i < playerlist.length; i++){
         if(playerlist[i].id != player.id){
-            if(playerlist[i].x > range.x.min && playerlist[i].x < range.x.max){
-                // var playeroffset = {x: (playerlist[i].x % 1) * tile.width, y: (playerlist[i].y % 1) * tile.height },
-                if(playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
-                    ctx.save();
-                    ctx.translate((playerlist[i].x - range.x.min) * tile.width + offset.center.x - offset.player.x, (playerlist[i].y - range.y.min) * tile.height + offset.center.y - offset.player.y);
-                    ctx.rotate(playerlist[i].curdir * Math.PI / 180);
-                    ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
-                    ctx.restore();
-                }
+            //Checks if current ship is in render distance
+            if(playerlist[i].x > range.x.min && playerlist[i].x < range.x.max && playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                );
+                ctx.rotate(playerlist[i].curdir * Math.PI / 180);
+                ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+                ctx.restore();
             }
         }
     }

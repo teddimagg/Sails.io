@@ -47,6 +47,10 @@ var _crashpenalty = 0.7; //down 30%
 var _goldpersecond = 25;
 var _maxgoldpercentage = 0.3; //Of map..
 
+var _firespeed = 0.2 * _tickrate; //seconds * tickrate
+var _firecooldown = 3 * _tickrate //seconds
+var _firerange = 1.2 //tiles
+
 //MAP SETUP
 var plane = [];
 for(var i = 0; i < map.x; i++){
@@ -97,7 +101,8 @@ function onConnection(socket){
             speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
             alive: true,
             health: 100,
-            name: name
+            name: name,
+            attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}}
         };
         player.id = uuidV4();
         players.push(socket.player);
@@ -150,9 +155,37 @@ function onConnection(socket){
         //     }
         // }
 
+        if(player.attack.left.progr){player.attack.left.progr--};
+        if(player.attack.left.cooldown){ player.attack.left.cooldown--}
+        if(player.attack.right.progr){player.attack.right.progr--};
+        if(player.attack.right.cooldown){player.attack.right.cooldown--};
 
         players[_.findIndex(players, {'id': player.id})] = socket.player = player;
         socket.emit('playerInfo', player);
+    });
+
+    socket.on('fire', function (direction) {
+        if(direction == 'left'){
+            if(!player.attack.left.cooldown){
+                var attack = findNewPoint(player.x, player.y, player.curdir - 180, _firerange);
+                attack.cooldown = _firecooldown;
+                attack.origx = player.x;
+                attack.origy = player.y;
+                attack.progr = _firespeed;
+                player.attack.left = attack;
+                console.log(player.name + " fires to the " + direction);
+            }
+        } else if(direction == 'right'){
+            if(!player.attack.right.cooldown){
+                var attack = findNewPoint(player.x, player.y, player.curdir, _firerange);
+                attack.cooldown = _firecooldown;
+                attack.origx = player.x;
+                attack.origy = player.y;
+                attack.progr = _firespeed;
+                player.attack.right = attack;
+                console.log(player.name + " fires to the " + direction);
+            }
+        }
     });
 
     socket.on('disconnect', function () {
@@ -221,4 +254,13 @@ function crash(player){
     (Math.random() <= 0.5) ? player.curdir += _crashturncurdeg : player.curdir -= _crashturndeg;
     (Math.random() <= 0.5) ? player.dir += _crashturndeg : player.dir -= _crashturndeg;
     return player;
+}
+
+function findNewPoint(x, y, angle, distance) {
+    var result = {};
+
+    result.x = Math.cos(angle * Math.PI / 180) * distance + x;
+    result.y = Math.sin(angle * Math.PI / 180) * distance + y;
+
+    return result;
 }

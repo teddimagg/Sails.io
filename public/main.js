@@ -28,7 +28,7 @@ var player = {
     y: Math.ceil(Math.random() * 330) + 60
 };
 var plane = null;
-
+var explotions = [];
 
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICAL PRELOAD
@@ -50,9 +50,9 @@ islandImg3.onload = function() {console.log('island3 loaded')};
 islandImg4.onload = function() {console.log('island4 loaded')};
 
 //Collectables
-var goldImg = new Image();
-goldImg.src = 'http://www.clipartkid.com/images/68/coin-clip-art-for-kids-clipart-panda-free-clipart-images-SZynK3-clipart.png';
-goldImg.onload = function() {console.log('island4 loaded')};
+var explotionImg = new Image();
+explotionImg.src = 'img/fire.png';
+explotionImg.onload = function() {console.log('explotions loaded')};
 
 //Debug
 var debugImg = new Image();
@@ -63,6 +63,7 @@ debugImg.onload = function() {console.log('debug loaded')};
     //  LISTENERS AND INITIATORS
 // ------------------------------------------------------------------------------------- //
 document.addEventListener('DOMContentLoaded', init, false);
+document.addEventListener('keydown', keyController, false);
 
 $('#play').submit(function(event){
     event.preventDefault();
@@ -299,6 +300,80 @@ function drawPlayers(){
             }
         }
     }
+
+    //projectiles
+    for(var i = 0; i < playerlist.length; i++){
+        //Checks if current ship is in render distance
+        if(playerlist[i].x > range.x.min - 1 && playerlist[i].x < range.x.max + 1 && playerlist[i].y > range.y.min - 1 && playerlist[i].y < range.y.max + 1){
+            if(playerlist[i].attack.left.progr && playerlist[i].attack.left.progr < 5){
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].attack.left.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                );
+                ctx.drawImage(explotionImg, 0, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.restore();
+            }
+
+            if(playerlist[i].attack.right.progr && playerlist[i].attack.right.progr < 5){
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].attack.right.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].attack.right.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                );
+                ctx.drawImage(explotionImg, 0, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.restore();
+            }
+
+            // if(playerlist[i].attack.left.progr){
+            //     ctx.save();
+            //     ctx.translate(
+            //         (playerlist[i].attack.left.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+            //         (playerlist[i].attack.left.origy - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+            //     );
+            //     ctx.fillStyle = '#ffffff';
+            //     ctx.beginPath();
+            //     ctx.moveTo(0,0);
+            //     ctx.lineTo((playerlist[i].attack.left.x - playerlist[i].attack.left.origx) * tile.width, (playerlist[i].attack.left.y - playerlist[i].attack.left.origy) * tile.height);
+            //     ctx.stroke();
+            //     ctx.restore();
+            // }
+
+            // if(playerlist[i].attack.right.progr){
+            //     ctx.save();
+            //     ctx.translate(
+            //         (playerlist[i].attack.right.origx - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+            //         (playerlist[i].attack.right.origy - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+            //     );
+            //     ctx.fillStyle = '#ffffff';
+            //     ctx.beginPath();
+            //     ctx.moveTo(0,0);
+            //     ctx.lineTo((playerlist[i].attack.right.x - playerlist[i].attack.right.origx) * tile.width, (playerlist[i].attack.right.y - playerlist[i].attack.right.origy) * tile.height);
+            //     ctx.stroke();
+            //     ctx.restore();
+            // }
+
+
+            // ctx.rotate(playerlist[i].curdir * Math.PI / 180);
+            // ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+            // ctx.restore();
+
+            // ctx.save();
+            // ctx.translate(
+            //     (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+            //     (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+            // );
+            // //Drawing name and healthbar
+            // ctx.fillStyle = 'rgba(50,205,50,0.5)';
+            // ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 10);
+            // ctx.fillStyle = '#32CD32';
+            // ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
+            // ctx.fillStyle = '#ffffff';
+            // ctx.textAlign="center";
+            // ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
+            // ctx.restore();
+        }
+    }
 }
 
 function drawGolds(){
@@ -342,6 +417,15 @@ function gameReset(){
     $('.menu').show();
     $('.users').hide();
     $('.healthbox').hide();
+}
+
+function keyController(event){
+    //a 65
+    //d 68
+    if(player.alive){
+        if(event.keyCode == 65){ socket.emit('fire', 'left'); }
+        if(event.keyCode == 68){ socket.emit('fire', 'right'); }
+    }
 }
 
 // ------------------------------------------------------------------------------------- //

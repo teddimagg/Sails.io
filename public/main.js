@@ -284,6 +284,27 @@ function drawPlayer(){
         1.125*Math.PI);
     ctx.stroke();
 
+    ctx.strokeStyle = 'rgba(0,0,0,0.09)';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    var rcooldown = 0.125 - (player.attack.right.cooldown / 180 * 0.25);
+    ctx.arc(
+        0,
+        0,
+        200,
+        rcooldown*Math.PI,
+        0.125*Math.PI);
+    ctx.stroke();
+    var lcooldown = 0.875 + (player.attack.left.cooldown / 180 * 0.25);
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        0,
+        200,
+        0.875*Math.PI,
+        lcooldown*Math.PI);
+    ctx.stroke();
+
     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
     ctx.restore();
 }
@@ -332,7 +353,7 @@ function drawPlayers(){
                     (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.left.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.left.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.left.progr) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 
@@ -342,7 +363,7 @@ function drawPlayers(){
                     (playerlist[i].attack.right.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.right.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.right.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.right.progr) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 

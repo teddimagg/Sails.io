@@ -98,6 +98,11 @@ button {
   padding: 5px 0;
 }
 
+.users b {
+  float: right;
+  padding-right: 10px;
+}
+
 /* LEADERBOARD */
 .healthbox {
   display: none;

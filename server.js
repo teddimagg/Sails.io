@@ -84,6 +84,8 @@ var _crashplayerpain = 1;
 var _initspeed = (3) / _tickrate; //2.1 tiles per second
 var _initrotatespeed = 1.5 //deg per frame
 var _crashpenalty = 0.7; //down 30%
+var _sprintspeed = 1.5 * _initspeed;
+var _sprintrotatespeed = 1;
 
 //SPAWNING
 var _goldpersecond = 25;
@@ -92,9 +94,16 @@ var _maxgoldpercentage = 0.3; //Of map..
 var _firespeed = 0.2 * _tickrate + 10; //seconds * tickrate // + 10 for explotionanim
 var _firecooldown = 3 * _tickrate //seconds
 var _firerange = 2 //tiles
-var _firedamage = 70 //damage if direct hit
+var _firedamage = 40 //damage if direct hit
 var _firedamagereduction = 0.6 //60% per tile away
 var _firedamageblastradius = 1
+
+//
+var _healthregen = 1 / _tickrate; //2 per sec
+var _alivescore = 0.5 / _tickrate;
+
+var _killscore = 80;
+var _sprintcost = 8 / _tickrate;
 
 //MAP SETUP
 var plane = [];
@@ -147,7 +156,8 @@ function onConnection(socket){
             name: name,
             attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}},
             score: 0,
-            lasttouch: 'yourself'
+            lasttouch: 'yourself',
+            sprint: false
         };
         player.id = uuidV4();
         players.push(socket.player);
@@ -162,6 +172,15 @@ function onConnection(socket){
         player = socket.player;
         if(socket.player && player.health > 0){
             player.dir = dir;
+            if(player.sprint && player.score > _sprintcost){
+                player.speed.sail = _sprintspeed;
+                player.speed.rotate = _sprintrotatespeed;
+                player.score -= _sprintcost;
+            } else {
+                player.speed.sail = _initspeed;
+                player.speed.rotate = _initrotatespeed;
+            }
+
             player.curdir += getRotation(player);
             player = moveDirection(player);
 
@@ -176,6 +195,7 @@ function onConnection(socket){
                 player.health -= _crashislanpain;
             } else {
                 player.speed.sail = _initspeed;
+                player.sprint = false;
             }
 
             //COLLISION CHECK
@@ -200,7 +220,8 @@ function onConnection(socket){
                                 players[i].health -= _firedamage;
                                 players[i].lasttouch = player.name;
                                 if(players[i].health <= 0){
-                                    player.score++;
+                                    player.score += _killscore_
+                                    ;
                                 }
                             }
                         }
@@ -225,7 +246,11 @@ function onConnection(socket){
                     }
                 }
             };
+
             if(player.attack.right.cooldown){player.attack.right.cooldown--};
+            player.score += _alivescore;
+
+            if(player.health < 100){player.health += _healthregen};
 
             players[_.findIndex(players, {'id': player.id})] = socket.player = player;
             socket.emit('playerInfo', player);
@@ -240,6 +265,7 @@ function onConnection(socket){
             }
             socket.player.alive = false;
         }
+
 
     });
 
@@ -265,6 +291,10 @@ function onConnection(socket){
                 console.log(player.name + " fires to the " + direction);
             }
         }
+    });
+
+    socket.on('sprint', function (b) {
+        (b) ? player.sprint = true : player.sprint = false;
     });
 
     socket.on('disconnect', function () {

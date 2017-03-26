@@ -65,6 +65,9 @@ debugImg.onload = function() {console.log('debug loaded')};
 document.addEventListener('DOMContentLoaded', init, false);
 document.addEventListener('keydown', keyController, false);
 
+document.addEventListener('keydown', startSprint, false);
+document.addEventListener('keyup', stopSprint, false);
+
 $(document).ready(function(){
     if(document.cookie !== undefined){
         var name = getCookie('cachedUsername');
@@ -527,11 +530,20 @@ function gameReset(){
 function keyController(event){
     //a 65
     //d 68
-    console.log(event.keyCode);
+    //shift 16
     if(player.alive){
         if(event.keyCode == 65){ socket.emit('fire', 'left'); }
         if(event.keyCode == 68){ socket.emit('fire', 'right'); }
+        if(event.keyCode == 16){ socket.emit('sprint', true); }
     }
+}
+
+function startSprint(event){
+    if(player.alive){ if(event.keyCode == 16){ socket.emit('sprint', true); }}
+}
+
+function stopSprint(event){
+    if(player.alive){if(event.keyCode == 16){ socket.emit('sprint', false); }}
 }
 
 // ------------------------------------------------------------------------------------- //
@@ -541,7 +553,7 @@ function keyController(event){
 function updateLeaderboard(){
     var html = '';
     for(var i in playerlist){
-        html += '<li>' + playerlist[i].name + ' - <b>' + playerlist[i].score +  '</b></li>'
+        html += '<li>' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
     }
 
     $('.userlist').html(html);

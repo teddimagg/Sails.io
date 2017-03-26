@@ -8,7 +8,7 @@ var tile = {
     height: 95  //px
 }
 
-var debugMode = true;
+var debugMode = false;
 
 // ------------------------------------------------------------------------------------- //
     //  GAME VARIABLES
@@ -21,8 +21,10 @@ var map = {
 
 var playerlist;
 var player = {
-    x: 30,
-    y: 30,
+    // x: Math.ceil(Math.random() * 330) + 60,
+    // y: Math.ceil(Math.random() * 330) + 60,
+    x: 120,
+    y: 120,
     curdir: 0,
     dir: 0,
     speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick

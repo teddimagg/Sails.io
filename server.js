@@ -73,7 +73,7 @@ function onConnection(socket){
         //check ground
         if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
             player.speed.sail = 0.020;
-            console.log('sailing on land');
+            // console.log('sailing on land');
         } else {
             player.speed.sail = 0.035;
         }

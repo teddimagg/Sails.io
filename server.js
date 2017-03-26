@@ -101,7 +101,7 @@ function onConnection(socket){
             y: Math.ceil(Math.random() * 3) + 120,
             curdir: 0,
             dir: 0,
-            speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
+            speed: {sail: 0.035, rotate: 1.5}, //tiles per tick, degs per tick
             alive: true,
             health: 100,
             name: name,

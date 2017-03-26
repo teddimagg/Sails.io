@@ -264,6 +264,26 @@ function drawPlayer(){
     ctx.save();
     ctx.translate((width / 2), (height / 2));
     ctx.rotate(player.curdir * Math.PI / 180);
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        0,
+        200,
+        -0.125*Math.PI,
+        0.125*Math.PI);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(
+        0,
+        0,
+        200,
+        0.875*Math.PI,
+        1.125*Math.PI);
+    ctx.stroke();
+
     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
     ctx.restore();
 }
@@ -296,6 +316,7 @@ function drawPlayers(){
                 ctx.fillStyle = '#ffffff';
                 ctx.textAlign="center";
                 ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
+                ctx.fillStyle = '#ffffff';
                 ctx.restore();
             }
         }
@@ -311,7 +332,7 @@ function drawPlayers(){
                     (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.left.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, playerlist[i].attack.left.progr * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.left.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 

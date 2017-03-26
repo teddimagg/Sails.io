@@ -17,6 +17,7 @@ io.on('connection', onConnection);
 // ------------------------------------------------------------------------------------- //
 const debugMode = false;
 var players = [];
+var golds = [];
 
 //MAP SIZE
 var map = {
@@ -29,6 +30,7 @@ var _tickrate = 60; //frames per second
 //TRIGGERS
 var _islandmargin = 0.30; //25% sailthroughness
 var _shipmargin = 0.50; //TODO: implement!!
+var _goldmargin = 0; //easy to pickup
 
 var _crashturndeg = 10;
 var _crashturncurdeg = 2;
@@ -41,6 +43,10 @@ var _crashplayerpain = 1;
 var _initspeed = (2.1) / _tickrate; //2.1 tiles per second
 var _crashpenalty = 0.7; //down 30%
 
+//SPAWNING
+var _goldpersecond = 25;
+var _maxgoldpercentage = 0.3; //Of map..
+
 //MAP SETUP
 var plane = [];
 for(var i = 0; i < map.x; i++){
@@ -51,23 +57,24 @@ for(var i = 0; i < map.x; i++){
     }
 }
 
-//COLLECTABLES SETUP
-var goldplane = [];
-for(var i = 0; i < map.x; i++){
-    goldplane[i] = [];
-    for(var j = 0; j < map.y; j++){
-        goldplane[i][j] = 0;
-    }
-}
-
-
 // ------------------------------------------------------------------------------------- //
     //  SOCKET SETUP
 // ------------------------------------------------------------------------------------- //
 
 interval = setInterval(function(){
     io.emit('shipfleet', players);
+    // io.emit('golds', golds);
 }, 1000/_tickrate)
+
+// goldinterval = setInterval(function(){
+//     if(golds.length < _maxgoldpercentage * map.x * map.y){
+//         golds.push({
+//             value: Math.ceil(Math.random() * 50),
+//             x: Math.floor(Math.random() * map.x),
+//             y: Math.floor(Math.random() * map.y)
+//         });
+//     }
+// }, 1000/_goldpersecond);
 
 //Multiplayer settings
 function onConnection(socket){
@@ -128,14 +135,21 @@ function onConnection(socket){
         }
 
         //COLLISION CHECK
-        if(!debugMode){
-            for(var i in players){
-                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-                    player.health -= _crashplayerpain;
-                    player = crash(player);
-                }
+
+        for(var i in players){
+            if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+                player.health -= _crashplayerpain;
+                player = crash(player);
             }
         }
+
+        // for(var i in golds){
+        //     if(Math.ceil(player.x) == Math.ceil(golds[i].x) && Math.ceil(player.y) == Math.ceil(golds[i].y)){
+        //         golds = golds.splice(i, 1);
+        //         console.log('gold PICKUP');
+        //     }
+        // }
+
 
         players[_.findIndex(players, {'id': player.id})] = socket.player = player;
         socket.emit('playerInfo', player);

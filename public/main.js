@@ -21,13 +21,13 @@ var map = {
 };
 
 var playerlist;
+var golds;
 var player = {
     //init only for lobby purposes
     x: Math.ceil(Math.random() * 330) + 60,
     y: Math.ceil(Math.random() * 330) + 60
 };
 var plane = null;
-var goldplane = null;
 
 
 // ------------------------------------------------------------------------------------- //
@@ -48,6 +48,11 @@ islandImg.onload = function() {console.log('island1 loaded')};
 islandImg2.onload = function() {console.log('island2 loaded')};
 islandImg3.onload = function() {console.log('island3 loaded')};
 islandImg4.onload = function() {console.log('island4 loaded')};
+
+//Collectables
+var goldImg = new Image();
+goldImg.src = 'http://www.clipartkid.com/images/68/coin-clip-art-for-kids-clipart-panda-free-clipart-images-SZynK3-clipart.png';
+goldImg.onload = function() {console.log('island4 loaded')};
 
 //Debug
 var debugImg = new Image();
@@ -96,6 +101,10 @@ function init(){
         player = p;
     });
 
+    // socket.on('golds', function(data){
+    //     golds = data;
+    // });
+
     socket.on('mapinit', function(data){
         plane = data;
     });
@@ -123,9 +132,8 @@ function tick(){
         drawBackground();
         draw();
         if(playerlist){
-            if(playerlist.length > 0){
-                drawPlayers();
-            }
+            if(playerlist.length > 0){ drawPlayers(); }
+            // if(golds.length > 0){ drawGolds(); }
         }
         if(player.alive){
             drawPlayer();
@@ -291,7 +299,22 @@ function drawPlayers(){
             }
         }
     }
+}
 
+function drawGolds(){
+    //Positional offset and centering
+    for(var i = 0; i < golds.length; i++){
+        //Checks if current ship is in render distance
+        if(golds[i].x > range.x.min - 1 && golds[i].x < range.x.max + 1 && golds[i].y > range.y.min - 1 && golds[i].y < range.y.max + 1){
+            ctx.save();
+            ctx.translate(
+                (golds[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                (golds[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+            );
+            ctx.drawImage(goldImg, -(tile.width / 4), -(tile.height / 4), tile.width / 2, tile.height / 2);
+            ctx.restore();
+        }
+    }
 }
 
 function drawBackground(){

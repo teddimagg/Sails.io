@@ -65,8 +65,8 @@ debugImg.onload = function() {console.log('debug loaded')};
 document.addEventListener('DOMContentLoaded', init, false);
 document.addEventListener('keydown', keyController, false);
 
-document.addEventListener('keydown', startSprint, false);
-document.addEventListener('keyup', stopSprint, false);
+// document.addEventListener('keydown', startSprint, false);
+// document.addEventListener('keyup', stopSprint, false);
 
 $(document).ready(function(){
     if(document.cookie !== undefined){

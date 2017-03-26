@@ -41,6 +41,7 @@ var _crashplayerpain = 1;
 
 //SAILING
 var _initspeed = (3) / _tickrate; //2.1 tiles per second
+var _initrotatespeed = 1.5 //deg per frame
 var _crashpenalty = 0.7; //down 30%
 
 //SPAWNING
@@ -101,7 +102,7 @@ function onConnection(socket){
             y: Math.ceil(Math.random() * 3) + 120,
             curdir: 0,
             dir: 0,
-            speed: {sail: 0.035, rotate: 1.5}, //tiles per tick, degs per tick
+            speed: {sail: _initspeed, rotate: _initrotatespeed}, //tiles per tick, degs per tick
             alive: true,
             health: 100,
             name: name,
@@ -163,7 +164,7 @@ function onConnection(socket){
             if(player.attack.left.cooldown){ player.attack.left.cooldown--}
             if(player.attack.right.progr){
                 player.attack.right.progr--
-                if(player.attack.right.progr <= 0){
+                if(player.attack.right.progr <= 7){
                     for(i in players){
                         if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
                             if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){

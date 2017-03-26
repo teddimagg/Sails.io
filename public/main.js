@@ -4,8 +4,8 @@
 // ------------------------------------------------------------------------------------- //
 var interval, canvas, ctx, height, width;
 var tile = {
-    width: 95,  //px
-    height: 95  //px
+    width: 105,  //px
+    height: 105  //px
 }
 
 var debugMode = false;
@@ -174,12 +174,18 @@ function draw(){
     if(viewport.width % 2 == 1){
         offset.center.x = width % tile.width / 2;
         if((player.x % 1) > 0.5){ range.x.min--; } //Odd number correction
-    } else { offset.center.x = (width / 2) % tile.width; }
+    } else {
+        offset.center.x = (width / 2) % tile.width;
+    }
+
     if(viewport.height % 2 == 1){
         offset.center.y = height % tile.height / 2;
         if((player.y % 1) > 0.5){ range.y.min--; } //Odd number correction
-    } else { offset.center.y = (height / 2) % tile.height; }
+    } else {
+        offset.center.y = (height / 2) % tile.height;
+    }
 
+    //Converting rational offset to pixels dynamically
     if(offset.center.x){ offset.center.x = tile.width - offset.center.x; }
     if(offset.center.y){ offset.center.y = tile.height - offset.center.y; }
 
@@ -258,7 +264,7 @@ function drawPlayers(){
     for(var i = 0; i < playerlist.length; i++){
         if(playerlist[i].id != player.id){
             //Checks if current ship is in render distance
-            if(playerlist[i].x > range.x.min && playerlist[i].x < range.x.max && playerlist[i].y > range.y.min && playerlist[i].y < range.y.max){
+            if(playerlist[i].x > range.x.min - 1 && playerlist[i].x < range.x.max + 1 && playerlist[i].y > range.y.min - 1 && playerlist[i].y < range.y.max + 1){
                 ctx.save();
                 ctx.translate(
                     (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X

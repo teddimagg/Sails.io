@@ -11,15 +11,37 @@ http.listen(port, () => console.log('listening on port ' + port));
 
 io.on('connection', onConnection);
 
-const debugMode = true;
+
+// ------------------------------------------------------------------------------------- //
+    //  SERVER SETTINGS
+// ------------------------------------------------------------------------------------- //
+const debugMode = false;
 var players = [];
 
+//MAP SIZE
 var map = {
     x: 450,
     y: 450
 };
 
-//Game setting initiation
+var _tickrate = 60; //frames per second
+
+//TRIGGERS
+var _islandmargin = 0.30; //25% sailthroughness
+var _shipmargin = 0.50; //TODO: implement!!
+
+var _crashturndeg = 10;
+var _crashturncurdeg = 2;
+
+//PAIN ENDORSMENTS
+var _crashislanpain = 0.5;
+var _crashplayerpain = 1;
+
+//SAILING
+var _initspeed = (2.1) / _tickrate; //2.1 tiles per second
+var _crashpenalty = 0.7; //down 30%
+
+//MAP SETUP
 var plane = [];
 for(var i = 0; i < map.x; i++){
     plane[i] = [];
@@ -29,6 +51,7 @@ for(var i = 0; i < map.x; i++){
     }
 }
 
+//COLLECTABLES SETUP
 var goldplane = [];
 for(var i = 0; i < map.x; i++){
     goldplane[i] = [];
@@ -37,9 +60,14 @@ for(var i = 0; i < map.x; i++){
     }
 }
 
+
+// ------------------------------------------------------------------------------------- //
+    //  SOCKET SETUP
+// ------------------------------------------------------------------------------------- //
+
 interval = setInterval(function(){
     io.emit('shipfleet', players);
-}, 1000/60)
+}, 1000/_tickrate)
 
 //Multiplayer settings
 function onConnection(socket){
@@ -61,7 +89,7 @@ function onConnection(socket){
             dir: 0,
             speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
             alive: true,
-            health: 65,
+            health: 100,
             name: name
         };
         player.id = uuidV4();
@@ -73,8 +101,6 @@ function onConnection(socket){
         if(!socket.player){
             socket.disconnect();
         }
-
-        playerid = socket.player.id;
 
         player = socket.player;
         player.dir = dir;
@@ -93,25 +119,23 @@ function onConnection(socket){
         }
 
         //check ground
-        if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
-            player.speed.sail = 0.020;
-            player.health -= 0.5;
-            // console.log('sailing on land');
+        if((player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin) && plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+            player.speed.sail = _initspeed * _crashpenalty;
+            player = crash(player);
+            player.health -= _crashislanpain;
         } else {
-            player.speed.sail = 0.035;
+            player.speed.sail = _initspeed;
         }
 
         //COLLISION CHECK
-        // if(!debugMode){
-        //     for(var i in players){
-        //         if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-        //             var removed = _.remove(players, function(n){
-        //                 return n.id == socket.player.id || n.id == players[i].id;
-        //             });
-        //             console.log('collision ' + socket.player.name + " removed");
-        //         }
-        //     }
-        // }
+        if(!debugMode){
+            for(var i in players){
+                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+                    player.health -= _crashplayerpain;
+                    player = crash(player);
+                }
+            }
+        }
 
         players[_.findIndex(players, {'id': player.id})] = socket.player = player;
         socket.emit('playerInfo', player);
@@ -129,6 +153,9 @@ function onConnection(socket){
     });
 }
 
+// ------------------------------------------------------------------------------------- //
+    //  GAME FUNCTIONALITY HELPERS
+// ------------------------------------------------------------------------------------- //
 
 function getRotation(player){
     var rotation = 0;
@@ -173,5 +200,11 @@ function moveDirection(player){
 
     player.x += move.x;
     player.y += move.y;
+    return player;
+}
+
+function crash(player){
+    (Math.random() <= 0.5) ? player.curdir += _crashturncurdeg : player.curdir -= _crashturndeg;
+    (Math.random() <= 0.5) ? player.dir += _crashturndeg : player.dir -= _crashturndeg;
     return player;
 }

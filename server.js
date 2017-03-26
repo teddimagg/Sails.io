@@ -32,8 +32,8 @@ var _islandmargin = 0.30; //25% sailthroughness
 var _shipmargin = 0.50; //TODO: implement!!
 var _goldmargin = 0; //easy to pickup
 
-var _crashturndeg = 10;
-var _crashturncurdeg = 2;
+var _crashturndeg = 0;
+var _crashturncurdeg = 3;
 
 //PAIN ENDORSMENTS
 var _crashislanpain = 0.5;

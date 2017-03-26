@@ -47,7 +47,7 @@ var _crashpenalty = 0.7; //down 30%
 var _goldpersecond = 25;
 var _maxgoldpercentage = 0.3; //Of map..
 
-var _firespeed = 0.2 * _tickrate; //seconds * tickrate
+var _firespeed = 0.2 * _tickrate + 10; //seconds * tickrate // + 10 for explotionanim
 var _firecooldown = 3 * _tickrate //seconds
 var _firerange = 2 //tiles
 var _firedamage = 70 //damage if direct hit
@@ -149,7 +149,7 @@ function onConnection(socket){
 
             if(player.attack.left.progr){
                 player.attack.left.progr--
-                if(player.attack.left.progr <= 0){
+                if(player.attack.left.progr <= 7){
                     for(i in players){
                         if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
                             if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){

@@ -356,7 +356,7 @@ function drawPlayers(){
                     (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.left.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.left.progr) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, (10 - Math.floor(playerlist[i].attack.left.progr)) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 
@@ -366,7 +366,7 @@ function drawPlayers(){
                     (playerlist[i].attack.right.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.right.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.right.progr) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, (10 - Math.floor(playerlist[i].attack.right.progr)) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 

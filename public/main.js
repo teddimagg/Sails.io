@@ -497,6 +497,7 @@ function gameReset(){
 function keyController(event){
     //a 65
     //d 68
+    console.log(event.keyCode);
     if(player.alive){
         if(event.keyCode == 65){ socket.emit('fire', 'left'); }
         if(event.keyCode == 68){ socket.emit('fire', 'right'); }

@@ -539,13 +539,13 @@ function keyController(event){
     }
 }
 
-function startSprint(event){
-    if(player.alive){ if(event.keyCode == 16){ socket.emit('sprint', true); }}
-}
+// function startSprint(event){
+//     if(player.alive){ if(event.keyCode == 16){ socket.emit('sprint', true); }}
+// }
 
-function stopSprint(event){
-    if(player.alive){if(event.keyCode == 16){ socket.emit('sprint', false); }}
-}
+// function stopSprint(event){
+//     if(player.alive){if(event.keyCode == 16){ socket.emit('sprint', false); }}
+// }
 
 // ------------------------------------------------------------------------------------- //
     //  GUI

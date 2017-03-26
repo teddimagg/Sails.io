@@ -363,8 +363,8 @@ function drawPlayers(){
                     (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
                 //Drawing name and healthbar
-                ctx.fillStyle = 'rgba(50,205,50,0.5)';
-                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 10);
+                ctx.fillStyle = 'rgba(180,61,11,0.8)';
+                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 12);
                 ctx.fillStyle = '#32CD32';
                 ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
                 ctx.fillStyle = '#ffffff';

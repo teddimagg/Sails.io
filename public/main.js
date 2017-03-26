@@ -24,13 +24,15 @@ var playerlist;
 var player = {
     // x: Math.ceil(Math.random() * 330) + 60,
     // y: Math.ceil(Math.random() * 330) + 60,
-    x: 120.3,
-    y: 120.3,
+    // x: 120,
+    // y: 120,
+    x: Math.ceil(Math.random() * 3) + 120,
+    y: Math.ceil(Math.random() * 3) + 120,
     curdir: 0,
     dir: 0,
-    speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
+    speed: {sail: 0, rotate: 1}, //tiles per tick, degs per tick
     alive: false,
-    health: 100
+    health: 65
 }
 
 var plane = null;
@@ -136,6 +138,7 @@ function tick(){
         if(player.alive){
             drawPlayer();
             updateMovements();
+            drawHud();
         }
         updateLeaderboard();
     }
@@ -271,18 +274,25 @@ function drawPlayers(){
                 ctx.rotate(playerlist[i].curdir * Math.PI / 180);
                 ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
                 ctx.restore();
+
+                ctx.save();
+                ctx.translate(
+                    (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                );
+                //Drawing name and healthbar
+                ctx.fillStyle = 'rgba(50,205,50,0.5)';
+                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 10);
+                ctx.fillStyle = '#32CD32';
+                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign="center";
+                ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
+                ctx.restore();
             }
         }
     }
 
-}
-
-//
-function changeBackgroundColor(){
-    context.save();
-    context.fillStyle = document.getElementById("backgroundColor").value;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.restore();
 }
 
 function drawBackground(){
@@ -308,4 +318,8 @@ function updateLeaderboard(){
         html += '<li>' + playerlist[i].name + '</li>'
     }
     $('.userlist').html(html);
+}
+
+function drawHud(){
+
 }

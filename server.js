@@ -75,7 +75,7 @@ function onConnection(socket){
             player.speed.sail = 0.020;
             // console.log('sailing on land');
         } else {
-            player.speed.sail = 0.035;
+            player.speed.sail = 0;
         }
 
         //COLLISION CHECK

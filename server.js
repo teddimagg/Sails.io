@@ -40,7 +40,7 @@ var _crashislanpain = 0.5;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (0.045) / _tickrate; //2.1 tiles per second
+var _initspeed = (3) / _tickrate; //2.1 tiles per second
 var _crashpenalty = 0.7; //down 30%
 
 //SPAWNING

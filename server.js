@@ -103,7 +103,7 @@ function onConnection(socket){
             dir: 0,
             speed: {sail: 0.035, rotate: 1.5}, //tiles per tick, degs per tick
             alive: true,
-            health: 100,
+            health: 1,
             name: name,
             attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}}
         };
@@ -114,76 +114,81 @@ function onConnection(socket){
 
     socket.on('sailing', function(dir) {
         if(!socket.player){
-            socket.disconnect();
+            // socket.disconnect();
         }
 
         player = socket.player;
-        player.dir = dir;
+        if(socket.player && player.health > 0){
+            player.dir = dir;
+            player.curdir += getRotation(player);
+            player = moveDirection(player);
 
-        if(player.health <= 0){
-           player.alive = false;
-           socket.disconnect();
-           return;
-        }
+            if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
+                //TODO: hefur siglt out of bounds
+            }
 
-        player.curdir += getRotation(player);
-        player = moveDirection(player);
-
-        if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
-            //TODO: hefur siglt out of bounds
-        }
-
-        //check ground
-        if((player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin) && plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
-            player.speed.sail = _initspeed * _crashpenalty;
-            player = crash(player);
-            player.health -= _crashislanpain;
-        } else {
-            player.speed.sail = _initspeed;
-        }
-
-        //COLLISION CHECK
-
-        for(var i in players){
-            if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-                player.health -= _crashplayerpain;
+            //check ground
+            if((player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin) && plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+                player.speed.sail = _initspeed * _crashpenalty;
                 player = crash(player);
+                player.health -= _crashislanpain;
+            } else {
+                player.speed.sail = _initspeed;
             }
+
+            //COLLISION CHECK
+
+            for(var i in players){
+                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+                    player.health -= _crashplayerpain;
+                    player = crash(player);
+                }
+            }
+
+
+
+            if(player.attack.left.progr){
+                player.attack.left.progr--
+                if(player.attack.left.progr <= 0){
+                    for(i in players){
+                        if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
+                            if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
+                                console.log(player.name + ' hitti ' + players[i].name);
+                                players[i].health -= _firedamage;
+                            }
+                        }
+                    }
+                }
+            };
+            if(player.attack.left.cooldown){ player.attack.left.cooldown--}
+            if(player.attack.right.progr){
+                player.attack.right.progr--
+                if(player.attack.right.progr <= 0){
+                    for(i in players){
+                        if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
+                            if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
+                                console.log(player.name + ' hitti ' + players[i].name);
+                                players[i].health -= _firedamage;
+                            }
+                        }
+                    }
+                }
+            };
+            if(player.attack.right.cooldown){player.attack.right.cooldown--};
+
+            players[_.findIndex(players, {'id': player.id})] = socket.player = player;
+            socket.emit('playerInfo', player);
+        } else {
+            if(player){
+                player.alive = false;
+                _.remove(players, function(p){
+                    return socket.player.id == p.id;
+                });
+                socket.emit('playerInfo', player);
+            }
+            socket.player.alive = false;
         }
 
-
-
-        if(player.attack.left.progr){
-            player.attack.left.progr--
-            if(player.attack.left.progr <= 0){
-                for(i in players){
-                    if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
-                        if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
-                            console.log(player.name + ' hitti ' + players[i].name);
-                            players[i].health -= _firedamage;
-                        }
-                    }
-                }
-            }
-        };
-        if(player.attack.left.cooldown){ player.attack.left.cooldown--}
-        if(player.attack.right.progr){
-            player.attack.right.progr--
-            if(player.attack.right.progr <= 0){
-                for(i in players){
-                    if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
-                        if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
-                            console.log(player.name + ' hitti ' + players[i].name);
-                            players[i].health -= _firedamage;
-                        }
-                    }
-                }
-            }
-        };
-        if(player.attack.right.cooldown){player.attack.right.cooldown--};
-
-        players[_.findIndex(players, {'id': player.id})] = socket.player = player;
-        socket.emit('playerInfo', player);
     });
 
     socket.on('fire', function (direction) {

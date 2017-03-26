@@ -99,6 +99,9 @@ function init(){
     });
 
     socket.on('playerInfo', function(p){
+        if(!p.alive){
+            gameReset();
+        }
         player = p;
     });
 
@@ -455,10 +458,11 @@ function gameReset(){
     };
 
     //TODO: Gaining socket connection again not working!
-    socket = io();
+    // socket = io();
     $('.menu').show();
     $('.users').hide();
     $('.healthbox').hide();
+    $('.play').focus();
 }
 
 function keyController(event){

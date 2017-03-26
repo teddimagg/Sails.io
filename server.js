@@ -55,58 +55,28 @@ function onConnection(socket){
     });
 
     socket.on('sailing', function(dir) {
+        if(!socket.player){
+            socket.disconnect();
+        }
         playerid = socket.player.id;
 
         var player = socket.player;
         player.dir = dir;
 
-        var rotation = 0;
-        if(player.curdir < player.dir - player.speed.rotate){
-            if(player.curdir < 90 && player.dir > 90 && (player.dir - player.curdir) > 180){
-                rotation = -player.speed.rotate;
-            } else {
-                rotation = player.speed.rotate;
-            }
-        } else if (player.curdir > player.dir + player.speed.rotate){
-            if(player.curdir > 90 && player.dir < 90 && (player.curdir - player.dir) > 180){
-                rotation = player.speed.rotate;
-            } else {
-                rotation = -player.speed.rotate;
-            }
-        }
+        player.curdir += getRotation(player);
+        player = moveDirection(player);
 
-
-        player.curdir += rotation;
-        if(player.curdir > 270){player.curdir = -90}
-        if(player.curdir < -90){player.curdir = 270}
-
-        var move = {x: 0, y: 0};
-        if(player.curdir < 0){
-            var ratio = player.curdir / -90 ;
-            move.x = -ratio * player.speed.sail;
-            move.y = -(1 - ratio) * player.speed.sail;
-        } else if(player.curdir < 90) {
-            var ratio = player.curdir / 90 ;
-            move.x = ratio * player.speed.sail;
-            move.y = -(1 - ratio) * player.speed.sail;
-        } else if(player.curdir < 180) {
-            var ratio = (player.curdir - 90) / 90 ;
-            move.x = (1 - ratio) * player.speed.sail;
-            move.y = ratio * player.speed.sail;
-        } else {
-            var ratio = (player.curdir - 180) / 90 ;
-            move.x = -ratio * player.speed.sail;
-            move.y = (1 - ratio) * player.speed.sail;
-        }
-
-        player.x += move.x;
-        player.y += move.y;
         if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
-
+            //TODO: hefur siglt out of bounds
         }
 
-        players[_.findIndex(players, {'id': player.id})] = socket.player = player;
-
+        //check ground
+        if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+            player.speed.sail = 0.020;
+            console.log('sailing on land');
+        } else {
+            player.speed.sail = 0.035;
+        }
 
         //COLLISION CHECK
         // if(!debugMode){
@@ -119,6 +89,8 @@ function onConnection(socket){
         //         }
         //     }
         // }
+
+        players[_.findIndex(players, {'id': player.id})] = socket.player = player;
         socket.emit('playerInfo', player);
     });
 
@@ -133,4 +105,51 @@ function onConnection(socket){
         });
         console.log(players);
     });
+}
+
+
+function getRotation(player){
+    var rotation = 0;
+    if(player.curdir < player.dir - player.speed.rotate){
+        if(player.curdir < 90 && player.dir > 90 && (player.dir - player.curdir) > 180){
+            rotation = -player.speed.rotate;
+        } else {
+            rotation = player.speed.rotate;
+        }
+    } else if (player.curdir > player.dir + player.speed.rotate){
+        if(player.curdir > 90 && player.dir < 90 && (player.curdir - player.dir) > 180){
+            rotation = player.speed.rotate;
+        } else {
+            rotation = -player.speed.rotate;
+        }
+    }
+    return rotation;
+}
+
+function moveDirection(player){
+    if(player.curdir > 270){player.curdir = -90}
+    if(player.curdir < -90){player.curdir = 270}
+
+    var move = {x: 0, y: 0};
+    if(player.curdir < 0){
+        var ratio = player.curdir / -90 ;
+        move.x = -ratio * player.speed.sail;
+        move.y = -(1 - ratio) * player.speed.sail;
+    } else if(player.curdir < 90) {
+        var ratio = player.curdir / 90 ;
+        move.x = ratio * player.speed.sail;
+        move.y = -(1 - ratio) * player.speed.sail;
+    } else if(player.curdir < 180) {
+        var ratio = (player.curdir - 90) / 90 ;
+        move.x = (1 - ratio) * player.speed.sail;
+        move.y = ratio * player.speed.sail;
+    } else {
+        var ratio = (player.curdir - 180) / 90 ;
+        move.x = -ratio * player.speed.sail;
+        move.y = (1 - ratio) * player.speed.sail;
+    }
+
+    player.x += move.x;
+    player.y += move.y;
+    return player;
 }

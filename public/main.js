@@ -1,12 +1,18 @@
 'use strict';
-//Engine variables
+// ------------------------------------------------------------------------------------- //
+    //  ENGINE VARIABLES
+// ------------------------------------------------------------------------------------- //
 var interval, canvas, ctx, height, width;
 var tile = {
     width: 95,  //px
     height: 95  //px
 }
 
-//Game variables
+var debugMode = true;
+
+// ------------------------------------------------------------------------------------- //
+    //  GAME VARIABLES
+// ------------------------------------------------------------------------------------- //
 var map = {
     x: 450,
     y: 450,
@@ -15,8 +21,8 @@ var map = {
 
 var playerlist;
 var player = {
-    x: 60,
-    y: 60,
+    x: 30,
+    y: 30,
     curdir: 0,
     dir: 0,
     speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
@@ -26,7 +32,11 @@ var player = {
 
 var plane = null;
 var goldplane = null;
-var debugMode = false;
+
+
+// ------------------------------------------------------------------------------------- //
+    //  GRAPHICAL PRELOAD
+// ------------------------------------------------------------------------------------- //
 //Graphics variables
 var playerImg = new Image()
 playerImg.src = 'img/ship.png';
@@ -43,7 +53,9 @@ islandImg2.onload = function() {console.log('island2 loaded')};
 islandImg3.onload = function() {console.log('island3 loaded')};
 islandImg4.onload = function() {console.log('island4 loaded')};
 
-//Event listeners
+// ------------------------------------------------------------------------------------- //
+    //  LISTENERS AND INITIATORS
+// ------------------------------------------------------------------------------------- //
 document.addEventListener('DOMContentLoaded', init, false);
 
 $('#play').submit(function(event){
@@ -51,6 +63,8 @@ $('#play').submit(function(event){
     playerinit();
 });
 
+
+//Dyynamically alter canvas size
 $( window ).resize(function() {
     canvas.height = height = document.body.clientHeight;
     canvas.width = width = document.body.clientWidth;
@@ -85,6 +99,7 @@ function init(){
     });
     socket.on('mapinit', function(data){
         plane = data;
+        console.log(data);
     });
 
     console.log(playerlist);
@@ -165,13 +180,15 @@ function draw(){
             } else {
                 if(plane[x][y] < 5){
                     ctx.save();
-                    ctx.translate(i.x * tile.width + offset.center.x - offset.player.x, i.y * tile.height + offset.center.y - offset.player.y);
+                    ctx.translate(i.x * tile.width + offset.center.x - offset.player.x + tile.width/2, i.y * tile.height + offset.center.y - offset.player.y + tile.height/2);
                     ctx.rotate(random(x + y) * 180 * Math.PI / 180);
+                    // ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height)
                     switch(plane[x][y]){
-                        case 1: ctx.drawImage(islandImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                        case 2: ctx.drawImage(islandImg2, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                        case 3: ctx.drawImage(islandImg3, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
-                        case 4: ctx.drawImage(islandImg4, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height); break;
+                        case 0: ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 1: ctx.drawImage(islandImg, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 2: ctx.drawImage(islandImg2, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 3: ctx.drawImage(islandImg3, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        case 4: ctx.drawImage(islandImg4, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
                     }
                     ctx.restore();
 

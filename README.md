@@ -1,6 +1,12 @@
 # Sails.io
 A multiplayer canvas game set at sea.
 
+# Live server
+
+```
+https://dashboard.heroku.com/apps/powerful-retreat-19968
+```
+
 ## Screens
 ![alt tag](http://3.1m.yt/TKGSAy.png)
 ![alt tag](http://2.1m.yt/o5Guuk1.png)

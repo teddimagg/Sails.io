@@ -40,7 +40,7 @@ var _crashislanpain = 0.5;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (2.1) / _tickrate; //2.1 tiles per second
+var _initspeed = (0) / _tickrate; //2.1 tiles per second
 var _crashpenalty = 0.7; //down 30%
 
 //SPAWNING
@@ -49,7 +49,10 @@ var _maxgoldpercentage = 0.3; //Of map..
 
 var _firespeed = 0.2 * _tickrate; //seconds * tickrate
 var _firecooldown = 3 * _tickrate //seconds
-var _firerange = 1.2 //tiles
+var _firerange = 2 //tiles
+var _firedamage = 70 //damage if direct hit
+var _firedamagereduction = 0.6 //60% per tile away
+var _firedamageblastradius = 1
 
 //MAP SETUP
 var plane = [];
@@ -148,16 +151,35 @@ function onConnection(socket){
             }
         }
 
-        // for(var i in golds){
-        //     if(Math.ceil(player.x) == Math.ceil(golds[i].x) && Math.ceil(player.y) == Math.ceil(golds[i].y)){
-        //         golds = golds.splice(i, 1);
-        //         console.log('gold PICKUP');
-        //     }
-        // }
 
-        if(player.attack.left.progr){player.attack.left.progr--};
+
+        if(player.attack.left.progr){
+            player.attack.left.progr--
+            if(player.attack.left.progr <= 0){
+                for(i in players){
+                    if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
+                        if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
+                            console.log(player.name + ' hitti ' + players[i].name);
+                            players[i].health -= _firedamage;
+                        }
+                    }
+                }
+            }
+        };
         if(player.attack.left.cooldown){ player.attack.left.cooldown--}
-        if(player.attack.right.progr){player.attack.right.progr--};
+        if(player.attack.right.progr){
+            player.attack.right.progr--
+            if(player.attack.right.progr <= 0){
+                for(i in players){
+                    if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
+                        if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
+                            console.log(player.name + ' hitti ' + players[i].name);
+                            players[i].health -= _firedamage;
+                        }
+                    }
+                }
+            }
+        };
         if(player.attack.right.cooldown){player.attack.right.cooldown--};
 
         players[_.findIndex(players, {'id': player.id})] = socket.player = player;

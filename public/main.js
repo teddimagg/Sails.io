@@ -305,7 +305,7 @@ function drawPlayers(){
     for(var i = 0; i < playerlist.length; i++){
         //Checks if current ship is in render distance
         if(playerlist[i].x > range.x.min - 1 && playerlist[i].x < range.x.max + 1 && playerlist[i].y > range.y.min - 1 && playerlist[i].y < range.y.max + 1){
-            if(playerlist[i].attack.left.progr && playerlist[i].attack.left.progr < 5){
+            if(playerlist[i].attack.left.progr && playerlist[i].attack.left.progr < 10){
                 ctx.save();
                 ctx.translate(
                     (playerlist[i].attack.left.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
@@ -315,13 +315,13 @@ function drawPlayers(){
                 ctx.restore();
             }
 
-            if(playerlist[i].attack.right.progr && playerlist[i].attack.right.progr < 5){
+            if(playerlist[i].attack.right.progr && playerlist[i].attack.right.progr < 10){
                 ctx.save();
                 ctx.translate(
                     (playerlist[i].attack.right.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (playerlist[i].attack.right.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                ctx.drawImage(explotionImg, playerlist[i].attack.right.progr * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
+                ctx.drawImage(explotionImg, Math.floor(playerlist[i].attack.right.progr / 2) * 128, 0, 128, 128, -(tile.width/2), -(tile.height/2), (tile.width), (tile.height));
                 ctx.restore();
             }
 

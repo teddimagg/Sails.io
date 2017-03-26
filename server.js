@@ -5,10 +5,51 @@ const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 const _ = require('lodash');
 const uuidV4 = require('uuid/v4');
+const cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser')
 
+app.use(cookieParser());
+app.use(bodyParser.json())
+// app.use(function(req, res, next){
+//     // console.log(req.cookies);
+//         var cookie = req.cookies.cookieName;
+//         if(cookie === undefined){
+//             var randomNumber=Math.random().toString();
+//             randomNumber=randomNumber.substring(2,randomNumber.length);
+//             res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
+//             console.log('cookie created successfully');
+//         } else {
+//             console.log('cookie exists', cookie);
+//         }
+//         next();
+// });
 app.use(express.static(__dirname + '/public'));
 http.listen(port, () => console.log('listening on port ' + port));
 
+app.post('/addusername', function(req, res){
+    // console.log("cookiename", req.cookies.cachedUsername);
+    console.log(req.body.name + " " + req.cookies.cachedUsername);
+    var existingCookie = req.cookies.cachedUsername;
+    if(existingCookie === undefined){
+        res.cookie('cachedUsername', req.body.name, { });
+        res.status(201).send('cookie created successfully')
+        console.log('cookie created successfully');
+    } else {
+        if(req.body.name === existingCookie){
+            console.log('same name');
+            res.cookie('cachedUsername', existingCookie, { });
+            res.status(200).send('Same name');
+        } else {
+            res.cookie('cachedUsername', req.body.name, { });
+            res.status(200).send('setting new cookie name');
+            console.log("setting new cookie name", req.body.name);
+        }
+
+    }
+    // console.log('/addusername called');
+    // console.log(req.body);
+    // res.cookie('cachedUsername', req.body.name);
+});
 io.on('connection', onConnection);
 
 
@@ -87,7 +128,6 @@ interval = setInterval(function(){
 function onConnection(socket){
     socket.emit('mapinit', plane);
     console.log('Connection made');
-
     var player;
 
     socket.on('add user', function(name) {

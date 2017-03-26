@@ -65,10 +65,34 @@ debugImg.onload = function() {console.log('debug loaded')};
 document.addEventListener('DOMContentLoaded', init, false);
 document.addEventListener('keydown', keyController, false);
 
+$(document).ready(function(){
+    if(document.cookie !== undefined){
+        //TODO: find value by cookie name.....
+        //works only if 1 cookie is present..
+        var name = document.cookie.split('=')[1];
+        if(name){
+            $('#name').val(name.replace(/%20/g, " "));
+        }
+    }
+});
+
 $('#play').submit(function(event){
     event.preventDefault();
     player.name = $('#name').val();
     if(player.name){
+        const data = {
+            "name": player.name
+        };
+        console.log(document.cookie);
+        $.ajax({
+            type: "POST",
+            url: '/addusername',
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function(){
+                console.log("ajax success");
+            }
+        });
         playerinit(player.name);
     }
 });
@@ -85,6 +109,7 @@ var socket;
 function playerinit(name){
     $('.users').show();
     socket.emit('add user', name);
+
     $('.menu').hide();
     $('.healthbox').show();
 }

@@ -44,13 +44,28 @@ interval = setInterval(function(){
 //Multiplayer settings
 function onConnection(socket){
     socket.emit('mapinit', plane);
+    console.log('Connection made');
 
-    console.log('A player connected');
-    socket.on('add user', function(player) {
+    var player;
+
+    socket.on('add user', function(name) {
+        console.log(name + 'has started sailing!');
+        player = socket.player = {
+            // x: Math.ceil(Math.random() * 330) + 60,
+            // y: Math.ceil(Math.random() * 330) + 60,
+            // x: 120,
+            // y: 120,
+            x: Math.ceil(Math.random() * 3) + 120,
+            y: Math.ceil(Math.random() * 3) + 120,
+            curdir: 0,
+            dir: 0,
+            speed: {sail: 0.035, rotate: 1}, //tiles per tick, degs per tick
+            alive: true,
+            health: 65,
+            name: name
+        };
         player.id = uuidV4();
-        socket.player = player;
         players.push(socket.player);
-        // console.log(players);
         socket.emit('playerInfo', player);
     });
 
@@ -58,10 +73,17 @@ function onConnection(socket){
         if(!socket.player){
             socket.disconnect();
         }
+
         playerid = socket.player.id;
 
-        var player = socket.player;
+        player = socket.player;
         player.dir = dir;
+
+        if(player.health <= 0){
+           player.alive = false;
+           socket.disconnect();
+           return;
+        }
 
         player.curdir += getRotation(player);
         player = moveDirection(player);
@@ -73,9 +95,10 @@ function onConnection(socket){
         //check ground
         if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
             player.speed.sail = 0.020;
+            player.health -= 0.5;
             // console.log('sailing on land');
         } else {
-            player.speed.sail = 0;
+            player.speed.sail = 0.035;
         }
 
         //COLLISION CHECK
@@ -103,7 +126,6 @@ function onConnection(socket){
                 }
             }
         });
-        console.log(players);
     });
 }
 

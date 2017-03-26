@@ -22,19 +22,10 @@ var map = {
 
 var playerlist;
 var player = {
-    // x: Math.ceil(Math.random() * 330) + 60,
-    // y: Math.ceil(Math.random() * 330) + 60,
-    // x: 120,
-    // y: 120,
-    x: Math.ceil(Math.random() * 3) + 120,
-    y: Math.ceil(Math.random() * 3) + 120,
-    curdir: 0,
-    dir: 0,
-    speed: {sail: 0, rotate: 1}, //tiles per tick, degs per tick
-    alive: false,
-    health: 65
-}
-
+    //init only for lobby purposes
+    x: Math.ceil(Math.random() * 330) + 60,
+    y: Math.ceil(Math.random() * 330) + 60
+};
 var plane = null;
 var goldplane = null;
 
@@ -70,7 +61,10 @@ document.addEventListener('DOMContentLoaded', init, false);
 
 $('#play').submit(function(event){
     event.preventDefault();
-    playerinit();
+    player.name = $('#name').val();
+    if(player.name){
+        playerinit(player.name);
+    }
 });
 
 
@@ -82,19 +76,16 @@ $( window ).resize(function() {
 
 var socket;
 
-function playerinit(){
-    player.name = $('#name').val();
-    if(player.name){
-        player.alive = true;
-        socket.emit('add user', player);
-        $('.menu').hide();
-    }
+function playerinit(name){
+    $('.users').show();
+    socket.emit('add user', name);
+    $('.menu').hide();
+    $('.healthbox').show();
 }
 
 function init(){
-    updateLeaderboard();
     socket = io();
-    // player.id = Math.floor(Math.random() * 9999);
+
     //Set socket listeners
     socket.on('players', function(data){
         console.log('playerlist updated')
@@ -107,12 +98,13 @@ function init(){
 
     socket.on('mapinit', function(data){
         plane = data;
-        console.log(data);
     });
 
     socket.on('shipfleet', function(players){
         playerlist = players;
     });
+
+    socket.on('disconnect', gameReset);
 
     canvas = document.querySelector('canvas');
     canvas.addEventListener('mousemove', mouseController, false);
@@ -138,17 +130,18 @@ function tick(){
         if(player.alive){
             drawPlayer();
             updateMovements();
-            drawHud();
+            updateLeaderboard();
         }
-        updateLeaderboard();
     }
 }
 
 // tengist socket
 function mouseController(event){
-    var mouse = {x: event.clientX, y: event.clientY};
-    var rad = Math.atan2(mouse.y - height / 2, mouse.x - width / 2) * 180 / Math.PI + 90;
-    player.dir = rad;
+    if(player.alive){
+        var mouse = {x: event.clientX, y: event.clientY};
+        var rad = Math.atan2(mouse.y - height / 2, mouse.x - width / 2) * 180 / Math.PI + 90;
+        player.dir = rad;
+    }
 }
 
 
@@ -308,6 +301,20 @@ function updateMovements(){
     socket.emit('sailing', player.dir);
 }
 
+function gameReset(){
+    player = {
+        //init only for lobby purposes
+        x: Math.ceil(Math.random() * 330) + 60,
+        y: Math.ceil(Math.random() * 330) + 60
+    };
+
+    //TODO: Gaining socket connection again not working!
+    socket = io();
+    $('.menu').show();
+    $('.users').hide();
+    $('.healthbox').hide();
+}
+
 // ------------------------------------------------------------------------------------- //
     //  GUI
 // ------------------------------------------------------------------------------------- //
@@ -317,9 +324,7 @@ function updateLeaderboard(){
     for(var i in playerlist){
         html += '<li>' + playerlist[i].name + '</li>'
     }
+
     $('.userlist').html(html);
-}
-
-function drawHud(){
-
+    $('.health').css('width', player.health + '%');
 }

@@ -77,14 +77,43 @@ button {
 #name:focus { outline: none; }
 
 .users {
+  /*display: none;*/
   position: absolute;
   top: 0;
   left: 0;
   height: 300px;
   width: 180px;
   background-color: rgba(255,255,255,0.2);
+  font-weight: 700;
+  font-family: 'Source Sans Pro', sans-serif;
+  display: none;
 }
 
-.userlist {
+.users ul {
+  list-style: none;
+  padding: 0 10px;
+}
 
+.users ul li {
+  padding: 5px 0;
+}
+
+/* LEADERBOARD */
+.healthbox {
+  display: none;
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  height: 30px;
+  width: 120px;
+  background-color: rgba(180,61,11,0.8);
+}
+
+.health {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  background-color: #78d34e;
+  transition: all 0.1s ease-in-out;
 }

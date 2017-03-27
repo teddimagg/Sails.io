@@ -18,10 +18,8 @@ https://powerful-retreat-19968.herokuapp.com/
 * [Socket.io](https://rometools.github.io/rome/) - For real time communications
 
 ## Todo
-```
 - [ ] fix cannonball animation while rotating glitch
 - [ ] add sprinting cababilities
 - [ ] keep player copy ingame after death
 - [ ] make corpses pickable by other players
 - [ ] different texture for corpses on sea and on land
-```

@@ -207,8 +207,8 @@ function onConnection(socket){
                         if(players[i].alive){
                             if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
                                 if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
-                                    var xprox = Math.abs(player.attack.left.x - players[i].x);
-                                    var yprox = Math.abs(player.attack.left.y - players[i].y);
+                                    var xprox = Math.abs(player.attack.right.x - players[i].x);
+                                    var yprox = Math.abs(player.attack.right.y - players[i].y);
                                     var median = (xprox + yprox) / 2;
                                     var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
                                     players[i].health -= damage;

@@ -34,9 +34,11 @@ var explotions = [];
     //  GRAPHICAL PRELOAD
 // ------------------------------------------------------------------------------------- //
 //Graphics variables
-var playerImg = new Image()
+var playerImg = new Image(), wreckImg = new Image();
 playerImg.src = 'img/ship.png';
+wreckImg.src = 'img/shipwreck.png';
 playerImg.onload = function() {console.log('ship built')};
+wreckImg.onload = function() {console.log('wreckage found')};
 
 //Islands
 var islandImg = new Image(), islandImg2 = new Image(), islandImg3 = new Image(), islandImg4 = new Image();
@@ -359,24 +361,29 @@ function drawPlayers(){
                     (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
                 ctx.rotate(playerlist[i].curdir * Math.PI / 180);
-                ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+                if(playerlist[i].alive){
+                    ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+                } else {
+                    ctx.drawImage(wreckImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+                }
                 ctx.restore();
-
-                ctx.save();
-                ctx.translate(
-                    (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
-                    (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
-                );
-                //Drawing name and healthbar
-                ctx.fillStyle = 'rgba(180,61,11,0.8)';
-                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 12);
-                ctx.fillStyle = '#32CD32';
-                ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
-                ctx.fillStyle = '#ffffff';
-                ctx.textAlign="center";
-                ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
-                ctx.fillStyle = '#ffffff';
-                ctx.restore();
+                if(playerlist[i].alive){
+                    ctx.save();
+                    ctx.translate(
+                        (playerlist[i].x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                        (playerlist[i].y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                    );
+                    //Drawing name and healthbar
+                    ctx.fillStyle = 'rgba(180,61,11,0.8)';
+                    ctx.fillRect(-(tile.height / 4), -(tile.height / 2), tile.width / 2, tile.height / 12);
+                    ctx.fillStyle = '#32CD32';
+                    ctx.fillRect(-(tile.height / 4), -(tile.height / 2), (tile.width / 2)*(playerlist[i].health / 100), tile.height / 12);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign="center";
+                    ctx.fillText(playerlist[i].name, 0, -(tile.height / 2));
+                    ctx.fillStyle = '#ffffff';
+                    ctx.restore();
+                }
             }
         }
     }

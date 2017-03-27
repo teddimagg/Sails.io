@@ -10,25 +10,10 @@ var bodyParser = require('body-parser')
 
 app.use(cookieParser());
 app.use(bodyParser.json())
-// app.use(function(req, res, next){
-//     // console.log(req.cookies);
-//         var cookie = req.cookies.cookieName;
-//         if(cookie === undefined){
-//             var randomNumber=Math.random().toString();
-//             randomNumber=randomNumber.substring(2,randomNumber.length);
-//             res.cookie('cookieName',randomNumber, { maxAge: 900000, httpOnly: true });
-//             console.log('cookie created successfully');
-//         } else {
-//             console.log('cookie exists', cookie);
-//         }
-//         next();
-// });
 app.use(express.static(__dirname + '/public'));
 http.listen(port, () => console.log('listening on port ' + port));
 
 app.post('/addusername', function(req, res){
-    // console.log("cookiename", req.cookies.cachedUsername);
-    console.log(req.body.name + " " + req.cookies.cachedUsername);
     var existingCookie = req.cookies.cachedUsername;
     if(existingCookie === undefined){
         res.cookie('cachedUsername', req.body.name, { });
@@ -46,9 +31,6 @@ app.post('/addusername', function(req, res){
         }
 
     }
-    // console.log('/addusername called');
-    // console.log(req.body);
-    // res.cookie('cachedUsername', req.body.name);
 });
 io.on('connection', onConnection);
 
@@ -63,15 +45,16 @@ var golds = [];
 //MAP SIZE
 var map = {
     x: 450,
-    y: 450
+    y: 450,
+    buffer: 30
 };
 
 var _tickrate = 60; //frames per second
 
 //TRIGGERS
-var _islandmargin = 0.23; //% sailthroughness
-var _shipmargin = 0.50; //TODO: implement!!
-var _goldmargin = 0; //easy to pickup
+var _islandmargin = 0.23;                           //% sailthroughness
+var _shipmargin = 0.50;                             //TODO: implement!!
+var _goldmargin = 0;                                //easy to pickup
 
 var _crashturndeg = 0;
 var _crashturncurdeg = 3;
@@ -81,25 +64,22 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (3) / _tickrate; //2.1 tiles per second
-var _initrotatespeed = 1.5 //deg per frame
-var _crashpenalty = 0.94; //down 30%
+var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
+var _initrotatespeed = 1.5                          //deg per frame
+var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;
 var _sprintrotatespeed = 1;
 
-//SPAWNING
-var _goldpersecond = 25;
-var _maxgoldpercentage = 0.3; //Of map..
-
-var _firespeed = 0.2 * _tickrate + 10; //seconds * tickrate // + 10 for explotionanim
-var _firecooldown = 3 * _tickrate //seconds
-var _firerange = 2 //tiles
-var _firedamage = 40 //damage if direct hit
-var _firedamagereduction = 0.6 //60% per tile away
+//Combat
+var _firespeed = 0.2 * _tickrate + 10;              //seconds * tickrate // + 10 for explotionanim
+var _firecooldown = 3 * _tickrate                   //seconds
+var _firerange = 2                                  //tiles
+var _firedamage = 40                                //damage if direct hit
+var _firedamagereduction = 0.6                      //60% per tile away
 var _firedamageblastradius = 1
 
 //
-var _healthregen = 1 / _tickrate; //2 per sec
+var _healthregen = 1 / _tickrate;                   //2 per sec
 var _alivescore = 0.5 / _tickrate;
 
 var _killscore = 80;
@@ -123,16 +103,6 @@ interval = setInterval(function(){
     // io.emit('golds', golds);
 }, 1000/_tickrate)
 
-// goldinterval = setInterval(function(){
-//     if(golds.length < _maxgoldpercentage * map.x * map.y){
-//         golds.push({
-//             value: Math.ceil(Math.random() * 50),
-//             x: Math.floor(Math.random() * map.x),
-//             y: Math.floor(Math.random() * map.y)
-//         });
-//     }
-// }, 1000/_goldpersecond);
-
 //Multiplayer settings
 function onConnection(socket){
     socket.emit('mapinit', plane);
@@ -146,8 +116,8 @@ function onConnection(socket){
             // y: Math.ceil(Math.random() * 330) + 60,
             // x: 120,
             // y: 120,
-            x: Math.ceil(Math.random() * 3) + 120,
-            y: Math.ceil(Math.random() * 3) + 120,
+            x: Math.ceil(Math.random() * 3) + 40,
+            y: Math.ceil(Math.random() * 3) + 40,
             curdir: 0,
             dir: 0,
             speed: {sail: _initspeed, rotate: _initrotatespeed}, //tiles per tick, degs per tick
@@ -165,10 +135,6 @@ function onConnection(socket){
     });
 
     socket.on('sailing', function(dir) {
-        if(!socket.player){
-            // socket.disconnect();
-        }
-
         player = socket.player;
         if(socket.player && player.health > 0){
             player.dir = dir;
@@ -178,6 +144,7 @@ function onConnection(socket){
 
             if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
                 //TODO: hefur siglt out of bounds
+                player.health -= _outofboundpenalty;
             }
 
             //check ground
@@ -204,14 +171,15 @@ function onConnection(socket){
                 player.attack.left.progr--
                 if(player.attack.left.progr <= 0){
                     for(i in players){
-                        if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
-                            if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
-                                console.log(player.name + ' hitti ' + players[i].name);
-                                players[i].health -= _firedamage;
-                                players[i].lasttouch = player.name;
-                                if(players[i].health <= 0){
-                                    player.score += _killscore
-                                    ;
+                        if(players[i].alive){
+                            if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
+                                if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
+                                    console.log(player.name + ' hitti ' + players[i].name);
+                                    players[i].health -= _firedamage;
+                                    players[i].lasttouch = player.name;
+                                    if(players[i].health <= 0){
+                                        player.score += _killscore;
+                                    }
                                 }
                             }
                         }
@@ -223,13 +191,15 @@ function onConnection(socket){
                 player.attack.right.progr--
                 if(player.attack.right.progr <= 0){
                     for(i in players){
-                        if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
-                            if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
-                                console.log(player.name + ' hitti ' + players[i].name);
-                                players[i].health -= _firedamage;
-                                players[i].lasttouch = player.name;
-                                if(players[i].health <= 0){
-                                    player.score++;
+                        if(players[i].alive){
+                            if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
+                                if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
+                                    console.log(player.name + ' hitti ' + players[i].name);
+                                    players[i].health -= _firedamage;
+                                    players[i].lasttouch = player.name;
+                                    if(players[i].health <= 0){
+                                        player.score += _killscore;
+                                    }
                                 }
                             }
                         }
@@ -246,11 +216,9 @@ function onConnection(socket){
             socket.emit('playerInfo', player);
         } else {
             if(player){
+                player.health = 0;
                 console.log(player.name + " was killed by " + player.lasttouch);
                 player.alive = false;
-                _.remove(players, function(p){
-                    return socket.player.id == p.id;
-                });
                 socket.emit('playerInfo', player);
             }
             socket.player.alive = false;
@@ -268,7 +236,6 @@ function onConnection(socket){
                 attack.origy = player.y;
                 attack.progr = _firespeed;
                 player.attack.left = attack;
-                console.log(player.name + " fires to the " + direction);
             }
         } else if(direction == 'right'){
             if(!player.attack.right.cooldown){
@@ -278,7 +245,6 @@ function onConnection(socket){
                 attack.origy = player.y;
                 attack.progr = _firespeed;
                 player.attack.right = attack;
-                console.log(player.name + " fires to the " + direction);
             }
         }
     });

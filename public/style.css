@@ -152,9 +152,9 @@ button {
 
 .loading {
   position: absolute;
-  top: calc((50vh - 10vw / 2) - 30px);
-  right: 45%;
-  width: 10%;
+  top: calc((50vh - 5vw / 2) - 30px);
+  right: 47.5%;
+  width: 5%;
   height: auto;
 
   -webkit-animation:spin 13s cubic-bezier(.47,.68,.68,1.12);

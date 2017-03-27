@@ -29,7 +29,7 @@ var player = {
 };
 var plane = null;
 var explotions = [];
-
+var guistruct = {hitmark: null};
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICAL PRELOAD
 // ------------------------------------------------------------------------------------- //
@@ -144,6 +144,12 @@ function init(){
             gameReset();
         }
         player = p;
+    });
+
+    socket.on('hit', function(loc){
+        console.log('hitemit!');
+        loc.cooldown = 90;
+        guistruct.hitmark = loc;
     });
 
     socket.on('mapinit', function(data){
@@ -492,6 +498,23 @@ function drawPlayers(){
             }
 
         }
+
+        if(guistruct.hitmark){
+            if(guistruct.hitmark.cooldown){
+                ctx.save();
+                ctx.translate(
+                    (guistruct.hitmark.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
+                    (guistruct.hitmark.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
+                );
+                console.log((guistruct.hitmark.x - range.x.min) * tile.width - offset.center.x - offset.player.x, (guistruct.hitmark.y - range.y.min) * tile.height - offset.center.y - offset.player.y)
+                ctx.fillStyle = 'rgba(180,61,11,1)';
+                ctx.font="bold 28px Sail";
+                ctx.textAlign="center";
+                ctx.fillText(guistruct.hitmark.damage, 0, -(90 - guistruct.hitmark.cooldown)/1.8);
+                ctx.restore();
+                guistruct.hitmark.cooldown--;
+            }
+        }
     }
 }
 
@@ -590,3 +613,4 @@ function unLoad(){
     $('canvas').show();
     $('.loading').hide();
 }
+

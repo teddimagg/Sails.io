@@ -23,3 +23,4 @@ https://powerful-retreat-19968.herokuapp.com/
 - [x] keep player copy ingame after death
 - [x] make corpses pickable by other players
 - [ ] different texture for corpses on sea and on land
+- [x] text feedback on cannonhits

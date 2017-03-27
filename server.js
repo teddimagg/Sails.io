@@ -64,7 +64,7 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (2) / _tickrate;                   //2.1 tiles per second
+var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;
@@ -165,10 +165,10 @@ function onConnection(socket){
                         player.lasttouch = players[i].name;
                     } else {
                         console.log('touching shipwreck!');
+                        player.score += players[i].score * 0.5;
                         _.remove(players, function(n){
                             return n.id == players[i].id;
                         });
-                        player.score += players[i].score * 0.5;
                     }
                 }
             }
@@ -182,12 +182,12 @@ function onConnection(socket){
                         if(players[i].alive){
                             if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
                                 if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
-                                    console.log(player.name + ' hitti ' + players[i].name);
                                     players[i].health -= _firedamage;
                                     players[i].lasttouch = player.name;
                                     if(players[i].health <= 0){
                                         player.score += _killscore;
                                     }
+                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: _firedamage});
                                 }
                             }
                         }
@@ -202,12 +202,12 @@ function onConnection(socket){
                         if(players[i].alive){
                             if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
                                 if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
-                                    console.log(player.name + ' hitti ' + players[i].name);
                                     players[i].health -= _firedamage;
                                     players[i].lasttouch = player.name;
                                     if(players[i].health <= 0){
                                         player.score += _killscore;
                                     }
+                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: _firedamage});
                                 }
                             }
                         }
@@ -262,7 +262,10 @@ function onConnection(socket){
     });
 
     socket.on('disconnect', function () {
-        console.log('player disconnected');
+        if(player){
+            player.alive = false;
+            player.health = 0;
+        }
         // var removed = _.remove(players, function(n){
         //     if(socket){
         //         if(socket.player){

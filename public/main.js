@@ -79,6 +79,7 @@ $(document).ready(function(){
             console.log(decodeURI(name));
             $('#name').val(decodeURI(name));
         }
+        //should fetch the username
     }
 });
 

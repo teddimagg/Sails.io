@@ -59,6 +59,10 @@ var debugImg = new Image();
 debugImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Square_with_corners.svg/2000px-Square_with_corners.svg.png';
 debugImg.onload = function() {console.log('debug loaded')};
 
+//LOADING HELPER
+var loading = false;
+
+
 // ------------------------------------------------------------------------------------- //
     //  LISTENERS AND INITIATORS
 // ------------------------------------------------------------------------------------- //
@@ -286,6 +290,7 @@ function draw(){
         i.y = 0;
         i.x++;
     }
+    if(!loading){ unLoad() };
 }
 
 function random(seed) {
@@ -569,4 +574,11 @@ function gameMessage(text){
         $('.gameMessage').hide();
         $('.gameMessage h3').text('');
     }, 5000);
+}
+
+function unLoad(){
+    loading = true;
+    $('.menu').show();
+    $('canvas').show();
+    $('.loading').hide();
 }

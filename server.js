@@ -69,7 +69,7 @@ var map = {
 var _tickrate = 60; //frames per second
 
 //TRIGGERS
-var _islandmargin = 0.30; //25% sailthroughness
+var _islandmargin = 0.23; //% sailthroughness
 var _shipmargin = 0.50; //TODO: implement!!
 var _goldmargin = 0; //easy to pickup
 
@@ -77,13 +77,13 @@ var _crashturndeg = 0;
 var _crashturncurdeg = 3;
 
 //PAIN ENDORSMENTS
-var _crashislanpain = 0.5;
+var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
 var _initspeed = (3) / _tickrate; //2.1 tiles per second
 var _initrotatespeed = 1.5 //deg per frame
-var _crashpenalty = 0.7; //down 30%
+var _crashpenalty = 0.94; //down 30%
 var _sprintspeed = 1.5 * _initspeed;
 var _sprintrotatespeed = 1;
 
@@ -172,14 +172,6 @@ function onConnection(socket){
         player = socket.player;
         if(socket.player && player.health > 0){
             player.dir = dir;
-            if(player.sprint && player.score > _sprintcost){
-                player.speed.sail = _sprintspeed;
-                player.speed.rotate = _sprintrotatespeed;
-                player.score -= _sprintcost;
-            } else {
-                player.speed.sail = _initspeed;
-                player.speed.rotate = _initrotatespeed;
-            }
 
             player.curdir += getRotation(player);
             player = moveDirection(player);
@@ -189,10 +181,8 @@ function onConnection(socket){
             }
 
             //check ground
-            if((player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin) && plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
-                player.speed.sail = _initspeed * _crashpenalty;
-                player = crash(player);
-                player.health -= _crashislanpain;
+            if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+                player = crashIsland(player);
             } else {
                 player.speed.sail = _initspeed;
                 player.sprint = false;
@@ -203,7 +193,7 @@ function onConnection(socket){
             for(var i in players){
                 if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
                     player.health -= _crashplayerpain;
-                    player = crash(player);
+                    player = crashShip(player);
                     player.lasttouch = players[i].name;
                 }
             }
@@ -359,9 +349,27 @@ function moveDirection(player){
     return player;
 }
 
-function crash(player){
+function crashShip(player){
     (Math.random() <= 0.5) ? player.curdir += _crashturncurdeg : player.curdir -= _crashturndeg;
     (Math.random() <= 0.5) ? player.dir += _crashturndeg : player.dir -= _crashturndeg;
+    return player;
+}
+
+function crashIsland(player){
+    var p = { x: player.x % 1, y: player.y % 1 };
+    var deltahalf = { x: Math.abs(p.x - 0.5), y: Math.abs(p.y - 0.5) };
+    var median = (deltahalf.x + deltahalf.y) / 2;
+    //(player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin)
+
+    if(median < 0.1){
+        player.speed.sail = 0;
+    } else {
+        player.speed.sail = _initspeed * 2 * (median - 0.1);
+    }
+
+    if(0.5 - median > _islandmargin){
+        player.health -= _crashislanpain;
+    }
     return player;
 }
 

@@ -11,6 +11,7 @@ html, body {
   margin: 0;
   padding: 0;
   position: relative;
+  background-color: #70b6eb;
 }
 
 #canvas {
@@ -39,6 +40,7 @@ p {
 
 .menu {
   position: absolute;
+  display: none;
   width: 400px;
   height: 300px;
   left: calc(50vw - 200px);
@@ -147,3 +149,19 @@ button {
   color: white;
   font-family: 'Source Sans Pro', sans-serif;
 }
+
+.loading {
+  position: absolute;
+  top: calc((50vh - 10vw / 2) - 30px);
+  right: 45%;
+  width: 10%;
+  height: auto;
+
+  -webkit-animation:spin 13s cubic-bezier(.47,.68,.68,1.12);
+  -moz-animation:spin 13s cubic-bezier(.47,.68,.68,1.12);
+  animation:spin 13s cubic-bezier(.47,.68,.68,1.12);
+}
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(1440deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(1440deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(1440deg); transform:rotate(1440deg); } }

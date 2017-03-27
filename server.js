@@ -279,6 +279,7 @@ function onConnection(socket){
                 if(player){
                     player.health = 0;
                     console.log(player.name + " was killed by " + player.lasttouch);
+                    clearInterval(playerinterval);
                     player.alive = false;
                     socket.emit('playerInfo', player);
                 }

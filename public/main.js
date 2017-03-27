@@ -124,9 +124,12 @@ var socket;
 
 function playerinit(name){
     $('.users').show();
-    socket.emit('add user', name);
+    if(!player.alive){
+        socket.emit('add user', name);
+    }
 
     $('.menu').hide();
+    $('.play').prop('disabled', true);
     $('.healthbox').show();
 }
 
@@ -558,6 +561,7 @@ function gameReset(){
 
     //TODO: Gaining socket connection again not working!
     // socket = io();
+    $('.play').prop('disabled', false);
     $('.menu').show();
     $('.users').hide();
     $('.healthbox').hide();

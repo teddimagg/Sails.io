@@ -64,7 +64,7 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
+var _initspeed = (2) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;
@@ -159,9 +159,17 @@ function onConnection(socket){
 
             for(var i in players){
                 if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-                    player.health -= _crashplayerpain;
-                    player = crashShip(player);
-                    player.lasttouch = players[i].name;
+                    if(players[i].alive){
+                        player.health -= _crashplayerpain;
+                        player = crashShip(player);
+                        player.lasttouch = players[i].name;
+                    } else {
+                        console.log('touching shipwreck!');
+                        _.remove(players, function(n){
+                            return n.id == players[i].id;
+                        });
+                        player.score += players[i].score * 0.5;
+                    }
                 }
             }
 
@@ -255,13 +263,13 @@ function onConnection(socket){
 
     socket.on('disconnect', function () {
         console.log('player disconnected');
-        var removed = _.remove(players, function(n){
-            if(socket){
-                if(socket.player){
-                    return n.id == socket.player.id;
-                }
-            }
-        });
+        // var removed = _.remove(players, function(n){
+        //     if(socket){
+        //         if(socket.player){
+        //             return n.id == socket.player.id;
+        //         }
+        //     }
+        // });
     });
 }
 

@@ -64,7 +64,7 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (3) / _tickrate;                   //2.1 tiles per second
+var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;
@@ -74,7 +74,7 @@ var _sprintrotatespeed = 1;
 var _firespeed = 0.2 * _tickrate + 10;              //seconds * tickrate // + 10 for explotionanim
 var _firecooldown = 3 * _tickrate                   //seconds
 var _firerange = 2                                  //tiles
-var _firedamage = 40                                //damage if direct hit
+var _firedamage = 70                                //damage if direct hit
 var _firedamagereduction = 0.6                      //60% per tile away
 var _firedamageblastradius = 1
 
@@ -182,12 +182,17 @@ function onConnection(socket){
                         if(players[i].alive){
                             if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
                                 if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
-                                    players[i].health -= _firedamage;
+                                    var xprox = Math.abs(player.attack.left.x - players[i].x);
+                                    var yprox = Math.abs(player.attack.left.y - players[i].y);
+                                    var median = (xprox + yprox) / 2;
+                                    var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
+                                    players[i].health -= damage;
                                     players[i].lasttouch = player.name;
+
                                     if(players[i].health <= 0){
                                         player.score += _killscore;
                                     }
-                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: _firedamage});
+                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
                                 }
                             }
                         }

@@ -20,7 +20,7 @@ https://powerful-retreat-19968.herokuapp.com/
 ## Todo
 - [ ] fix cannonball animation while rotating glitch
 - [ ] add sprinting cababilities
-- [x] keep player copy ingame after death | -------: | 27.03'17
-- [x] make corpses pickable by other players | -------: | 27.03'17
+- [x] keep player copy ingame after death
+- [x] make corpses pickable by other players
 - [ ] different texture for corpses on sea and on land
-- [x] text feedback on cannonhits | -------: | 27.03'17
+- [x] text feedback on cannonhits

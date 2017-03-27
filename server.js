@@ -105,6 +105,7 @@ interval = setInterval(function(){
 
 //Multiplayer settings
 function onConnection(socket){
+    var playerinterval;
     socket.emit('mapinit', plane);
     console.log('Connection made');
     var player;
@@ -132,116 +133,16 @@ function onConnection(socket){
         player.id = uuidV4();
         players.push(socket.player);
         socket.emit('playerInfo', player);
+        playerinterval = setInterval(updatePlayer, 1000/_tickrate)
     });
 
+
     socket.on('sailing', function(dir) {
-        player = socket.player;
-        if(socket.player && player.health > 0){
-            player.dir = dir;
-
-            player.curdir += getRotation(player);
-            player = moveDirection(player);
-
-            if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
-                //TODO: hefur siglt out of bounds
-                player.health -= _outofboundpenalty;
+        if(player){
+            if(player.alive){
+                player.dir = dir;
             }
-
-            //check ground
-            if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
-                player = crashIsland(player);
-            } else {
-                player.speed.sail = _initspeed;
-                player.sprint = false;
-            }
-
-            //COLLISION CHECK
-
-            for(var i in players){
-                if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
-                    if(players[i].alive){
-                        player.health -= _crashplayerpain;
-                        player = crashShip(player);
-                        player.lasttouch = players[i].name;
-                    } else {
-                        console.log('touching shipwreck!');
-                        player.score += players[i].score * 0.5;
-                        _.remove(players, function(n){
-                            return n.id == players[i].id;
-                        });
-                    }
-                }
-            }
-
-
-
-            if(player.attack.left.progr){
-                player.attack.left.progr--
-                if(player.attack.left.progr <= 0){
-                    for(i in players){
-                        if(players[i].alive){
-                            if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
-                                if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
-                                    var xprox = Math.abs(player.attack.left.x - players[i].x);
-                                    var yprox = Math.abs(player.attack.left.y - players[i].y);
-                                    var median = (xprox + yprox) / 2;
-                                    var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
-                                    players[i].health -= damage;
-                                    players[i].lasttouch = player.name;
-
-                                    if(players[i].health <= 0){
-                                        player.score += _killscore;
-                                    }
-                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-            if(player.attack.left.cooldown){ player.attack.left.cooldown--}
-            if(player.attack.right.progr){
-                player.attack.right.progr--
-                if(player.attack.right.progr <= 0){
-                    for(i in players){
-                        if(players[i].alive){
-                            if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
-                                if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
-                                    var xprox = Math.abs(player.attack.right.x - players[i].x);
-                                    var yprox = Math.abs(player.attack.right.y - players[i].y);
-                                    var median = (xprox + yprox) / 2;
-                                    var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
-                                    players[i].health -= damage;
-                                    players[i].lasttouch = player.name;
-                                    if(players[i].health <= 0){
-                                        player.score += _killscore;
-                                    }
-                                    socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            if(player.attack.right.cooldown){player.attack.right.cooldown--};
-            player.score += _alivescore;
-
-            if(player.health < 100){player.health += _healthregen};
-
-            players[_.findIndex(players, {'id': player.id})] = socket.player = player;
-            socket.emit('playerInfo', player);
-        } else {
-            if(player){
-                player.health = 0;
-                console.log(player.name + " was killed by " + player.lasttouch);
-                player.alive = false;
-                socket.emit('playerInfo', player);
-            }
-            socket.player.alive = false;
         }
-
-
     });
 
     socket.on('fire', function (direction) {
@@ -275,14 +176,118 @@ function onConnection(socket){
             player.alive = false;
             player.health = 0;
         }
-        // var removed = _.remove(players, function(n){
-        //     if(socket){
-        //         if(socket.player){
-        //             return n.id == socket.player.id;
-        //         }
-        //     }
-        // });
+        clearInterval(playerinterval);
     });
+
+    function updatePlayer(){
+        player = socket.player;
+        if(player){
+            if(socket.player && player.health > 0){
+                player.curdir += getRotation(player);
+                player = moveDirection(player);
+
+                if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
+                    //TODO: hefur siglt out of bounds
+                    player.health -= _outofboundpenalty;
+                }
+
+                //check ground
+                if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+                    player = crashIsland(player);
+                } else {
+                    player.speed.sail = _initspeed;
+                    player.sprint = false;
+                }
+
+                //COLLISION CHECK
+
+                for(var i in players){
+                    if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
+                        if(players[i].alive){
+                            player.health -= _crashplayerpain;
+                            player = crashShip(player);
+                            player.lasttouch = players[i].name;
+                        } else {
+                            console.log('touching shipwreck!');
+                            player.score += players[i].score * 0.5;
+                            _.remove(players, function(n){
+                                return n.id == players[i].id;
+                            });
+                        }
+                    }
+                }
+
+
+
+                if(player.attack.left.progr){
+                    player.attack.left.progr--
+                    if(player.attack.left.progr <= 0){
+                        for(i in players){
+                            if(players[i].alive){
+                                if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
+                                    if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
+                                        var xprox = Math.abs(player.attack.left.x - players[i].x);
+                                        var yprox = Math.abs(player.attack.left.y - players[i].y);
+                                        var median = (xprox + yprox) / 2;
+                                        var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
+                                        players[i].health -= damage;
+                                        players[i].lasttouch = player.name;
+
+                                        if(players[i].health <= 0){
+                                            player.score += _killscore;
+                                        }
+                                        socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                if(player.attack.left.cooldown){ player.attack.left.cooldown--}
+                if(player.attack.right.progr){
+                    player.attack.right.progr--
+                    if(player.attack.right.progr <= 0){
+                        for(i in players){
+                            if(players[i].alive){
+                                if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
+                                    if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
+                                        var xprox = Math.abs(player.attack.right.x - players[i].x);
+                                        var yprox = Math.abs(player.attack.right.y - players[i].y);
+                                        var median = (xprox + yprox) / 2;
+                                        var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
+                                        players[i].health -= damage;
+                                        players[i].lasttouch = player.name;
+                                        if(players[i].health <= 0){
+                                            player.score += _killscore;
+                                        }
+                                        socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                if(player.attack.right.cooldown){player.attack.right.cooldown--};
+                player.score += _alivescore;
+
+                if(player.health < 100){player.health += _healthregen};
+
+                players[_.findIndex(players, {'id': player.id})] = socket.player = player;
+                socket.emit('playerInfo', player);
+            } else {
+                if(player){
+                    player.health = 0;
+                    console.log(player.name + " was killed by " + player.lasttouch);
+                    player.alive = false;
+                    socket.emit('playerInfo', player);
+                }
+                socket.player.alive = false;
+                clearInterval(playerinterval);
+            }
+        }
+
+    }
 }
 
 // ------------------------------------------------------------------------------------- //

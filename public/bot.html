@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sails.io - Bot</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="/img/favico.png" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+  <div class="users">
+    <ul class="userlist">
+        <li></li>
+    </ul>
+  </div>
+  <img src="img/loading.png" class="loading">
+  <div class="menu">
+    <h2>Sails.io</h2>
+    <p>SELECT A NAME AND SPAWN.</p>
+    <ul class="instructor">
+        <li>A key - Fire left cannon</li>
+        <li>D key - Fire right cannon</li>
+        <!-- <li>Shift - Sprint</li> -->
+    </ul>
+    <form id="play">
+      <input type="text" name="name" id="name" placeholder="Name" autofocus>
+      <button class="play">PLAY</button>
+    </form>
+  </div>
+  <div class="gameMessage">
+    <h3></h3>
+  </div>
+  <canvas id="canvas"></canvas>
+  <div class="leaderboard">
+    <div class="healthbox">
+      <div class="health">
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/main.js"></script>
+  <script src="/botcontroller.js"></script>
+</body>
+</html>

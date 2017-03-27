@@ -26,3 +26,5 @@ https://powerful-retreat-19968.herokuapp.com/
 - [ ] different texture for corpses on sea and on land
 - [x] text feedback on cannonhits
 - [x] proximity calculated damage
+- [x] setting server side interval
+- [ ] add bots for testing purposes

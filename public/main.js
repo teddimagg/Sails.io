@@ -590,7 +590,9 @@ function keyController(event){
 function updateLeaderboard(){
     var html = '';
     for(var i in playerlist){
-        html += '<li>' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
+        if(playerlist[i].alive){
+            html += '<li>' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
+        }
     }
 
     $('.userlist').html(html);

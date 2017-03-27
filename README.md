@@ -16,3 +16,12 @@ https://powerful-retreat-19968.herokuapp.com/
 * [Node.js](https://nodejs.org/en/) - The web framework used
 * [Express](https://maven.apache.org/) - Module used to setup static server and routing
 * [Socket.io](https://rometools.github.io/rome/) - For real time communications
+
+## Todo
+```
+- [ ] fix cannonball animation while rotating glitch
+- [ ] add sprinting cababilities
+- [ ] keep player copy ingame after death
+- [ ] make corpses pickable by other players
+- [ ] different texture for corpses on sea and on land
+```

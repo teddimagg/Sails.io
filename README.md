@@ -30,6 +30,6 @@ https://powerful-retreat-19968.herokuapp.com/
 
 28.03'17
 - [ ] fix cannonball animation while rotating glitch
-- [ ] add sprinting cababilities
+- [x] add sprinting cababilities
 - [ ] different texture for corpses on sea and on land
 - [x] add zoom func to mwheel

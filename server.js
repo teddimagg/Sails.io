@@ -64,7 +64,7 @@ var _crashplayerpain = 1;
 var _initspeed = (3) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
-var _sprintspeed = 1.5 * _initspeed;
+var _sprintspeed = 1.6 * _initspeed;
 var _sprintrotatespeed = 1;
 
 //Combat
@@ -80,7 +80,7 @@ var _healthregen = 1 / _tickrate;                   //2 per sec
 var _alivescore = 0.5 / _tickrate;
 
 var _killscore = 80;
-var _sprintcost = 8 / _tickrate;
+var _sprintcost = 4 / _tickrate;                    //8 per sec
 
 var _wreckcleanuprate = 30 * 1000;                  //Every 30 sec
 
@@ -173,7 +173,13 @@ function onConnection(socket){
     });
 
     socket.on('sprint', function (b) {
-        (b) ? player.sprint = true : player.sprint = false;
+        if(player){
+            if(player.sprint && !b){
+                player.sprint = false;
+            } else if(!player.sprint && b && player.score > _sprintcost){
+                player.sprint = true;
+            }
+        }
     });
 
     socket.on('disconnect', function () {
@@ -188,6 +194,20 @@ function onConnection(socket){
         player = socket.player;
         if(player){
             if(socket.player && player.health > 0){
+                if(player.sprint && player.score > _sprintcost){
+                    player.speed.sail = _sprintspeed;
+                    player.speed.rotate = _sprintrotatespeed;
+                    player.score -= _sprintcost;
+                } else {
+                    player.speed.sail = _initspeed;
+                    player.speed.rotate = _initrotatespeed;
+                }
+
+                //check ground
+                if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
+                    player = crashIsland(player);
+                }
+
                 player.curdir += getRotation(player);
                 player = moveDirection(player);
 
@@ -196,13 +216,6 @@ function onConnection(socket){
                     player.health -= _outofboundpenalty;
                 }
 
-                //check ground
-                if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
-                    player = crashIsland(player);
-                } else {
-                    player.speed.sail = _initspeed;
-                    player.sprint = false;
-                }
 
                 //COLLISION CHECK
 
@@ -368,6 +381,8 @@ function crashIsland(player){
     if(0.5 - median > _islandmargin){
         player.health -= _crashislanpain;
     }
+
+    player.sprint = false;
     return player;
 }
 

@@ -74,6 +74,8 @@ document.addEventListener('keydown', keyController, false);
 // document.addEventListener('keydown', startSprint, false);
 // document.addEventListener('keyup', stopSprint, false);
 
+
+//Cookie for menu name
 $(document).ready(function(){
     if(document.cookie !== undefined){
         var name = getCookie('cachedUsername');
@@ -91,7 +93,7 @@ function getCookie(name) {
   if (parts.length == 2) return parts.pop().split(";").shift();
 }
 
-
+//Start game
 $('#play').submit(function(event){
     event.preventDefault();
     player.name = $('#name').val();
@@ -176,6 +178,11 @@ function init(){
     interval = window.setInterval(tick, 1000 / 60);
 }
 
+// ------------------------------------------------------------------------------------- //
+    //  GAME ENGINE HANDLERS
+// ------------------------------------------------------------------------------------- //
+
+
 function tick(){
     if(plane && player){ //loading
         ctx.clearRect(0, 0, width, height);
@@ -219,6 +226,20 @@ $(document).bind('mousewheel', function(e){
     }
 });
 
+var sprintbtn = false;
+$(document).keydown(function(e) {
+  if(!sprintbtn && e.keyCode == 16){
+    socket.emit('sprint', true);
+    sprintbtn = true;
+  }
+});
+
+$(document).keyup(function(e) {
+  if(sprintbtn && e.keyCode == 16){
+    socket.emit('sprint', false);
+    sprintbtn = false;
+  }
+});
 
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICS ENGINE
@@ -438,7 +459,6 @@ function drawPlayers(){
 
                 var travelx, travely;
                 var perc = (1 - (playerlist[i].attack.left.progr - 10) / 12);
-                console.log(playerlist[i].attack.left.progr);
 
                 if(playerlist[i].attack.left.x > playerlist[i].attack.left.origx){
                     travelx = playerlist[i].attack.left.origx - playerlist[i].attack.left.x;
@@ -487,7 +507,6 @@ function drawPlayers(){
 
                 var travelx, travely;
                 var perc = (1 - (playerlist[i].attack.right.progr - 10) / 12);
-                console.log(playerlist[i].attack.right.progr);
 
                 if(playerlist[i].attack.right.x > playerlist[i].attack.right.origx){
                     travelx = playerlist[i].attack.right.origx - playerlist[i].attack.right.x;
@@ -528,7 +547,6 @@ function drawPlayers(){
                     (guistruct.hitmark.x - range.x.min) * tile.width - offset.center.x - offset.player.x,   //X
                     (guistruct.hitmark.y - range.y.min) * tile.height - offset.center.y - offset.player.y   //Y
                 );
-                console.log((guistruct.hitmark.x - range.x.min) * tile.width - offset.center.x - offset.player.x, (guistruct.hitmark.y - range.y.min) * tile.height - offset.center.y - offset.player.y)
                 ctx.fillStyle = 'rgba(180,61,11,1)';
                 ctx.font="bold 28px Sail";
                 ctx.textAlign="center";
@@ -625,7 +643,6 @@ function updateLeaderboard(){
 function gameMessage(text){
     $('.gameMessage h3').text(text);
     $('.gameMessage').show();
-    console.log('setting message');
     setTimeout(function(){
         $('.gameMessage').hide();
         $('.gameMessage h3').text('');

@@ -24,8 +24,8 @@ var playerlist;
 var golds;
 var player = {
     //init only for lobby purposes
-    x: Math.ceil(Math.random() * 330) + 60,
-    y: Math.ceil(Math.random() * 330) + 60
+    x: Math.ceil(Math.random() * (250 - 60)) + 30,
+    y: Math.ceil(Math.random() * (250 - 60)) + 30
 };
 var plane = null;
 var explotions = [];
@@ -555,8 +555,8 @@ function gameReset(){
 
     player = {
         //init only for lobby purposes
-        x: Math.ceil(Math.random() * 330) + 60,
-        y: Math.ceil(Math.random() * 330) + 60
+        x: Math.ceil(Math.random() * map.x - 2*map.buffer) + map.buffer,
+        y: Math.ceil(Math.random() * map.y - 2*map.buffer) + map.buffer
     };
 
     //TODO: Gaining socket connection again not working!

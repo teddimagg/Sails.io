@@ -44,8 +44,8 @@ var golds = [];
 
 //MAP SIZE
 var map = {
-    x: 450,
-    y: 450,
+    x: 350,
+    y: 350,
     buffer: 30
 };
 
@@ -113,12 +113,12 @@ function onConnection(socket){
     socket.on('add user', function(name) {
         console.log(name + 'has started sailing!');
         player = socket.player = {
-            // x: Math.ceil(Math.random() * 330) + 60,
-            // y: Math.ceil(Math.random() * 330) + 60,
+            x: Math.ceil(Math.random() * (map.x - 2*map.buffer)) + map.buffer,
+            y: Math.ceil(Math.random() * (map.y - 2*map.buffer)) + map.buffer,
             // x: 120,
             // y: 120,
-            x: Math.ceil(Math.random() * 3) + 40,
-            y: Math.ceil(Math.random() * 3) + 40,
+            // x: Math.ceil(Math.random() * 3) + 160,
+            // y: Math.ceil(Math.random() * 3) + 160,
             curdir: 0,
             dir: 0,
             speed: {sail: _initspeed, rotate: _initrotatespeed}, //tiles per tick, degs per tick

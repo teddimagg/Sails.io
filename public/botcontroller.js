@@ -8,18 +8,19 @@ function bot(){
         // var mouse = {x: event.clientX, y: event.clientY};
         var x = Math.floor(player.x);
         var y = Math.floor(player.y);
+
         if(plane[x][y] > 10){
           //Checking boundaries
-          if(y <= 32){
+          if(y <= 40){
             console.log('avoiding boundaries - down');
             dir = goDown();
-          } else if(y >= 450 - 35){
+          } else if(y >= 250 - 40){
             console.log('avoiding boundaries - up');
             dir = goUp();
-          } else if(x <= 32){
+          } else if(x <= 40){
             console.log('avoiding boundaries - right');
             dir = goRight();
-          } else if(x >= 450 - 35){
+          } else if(x >= 250 - 40){
             console.log('avoiding boundaries - left');
             dir = goLeft();
           } else if(plane){
@@ -27,20 +28,17 @@ function bot(){
 
             switch(d){
               case 0:
-                if(plane[x][y+1] > 10 && plane[x][y+2] > 10){ dir = goUp(); } else { dir = goDown(); };
-                break;
+                if(plane[x][y+1] > 10 && plane[x][y+2] > 10 && plane[x+1][y+1] && plane[x-1][y+1] > 10){ dir = goUp(); } else { dir = goDown(); console.log('avoiding island - up'); };
               case 1:
-                if(plane[x+1][y] > 10 && plane[x+2][y] > 10){ dir = goRight(); } else { dir = goLeft(); };
-                break;
+                if(plane[x+1][y] > 10 && plane[x+2][y] > 10 && plane[x+1][y+1] > 10 && plane[x+1][y-1] > 10){ dir = goRight(); } else { dir = goLeft(); console.log('avoiding island - right'); };
               case 2:
-                if(plane[x][y-1] > 10 && plane[x][y-2] > 10){ dir = goDown(); } else { dir = goUp(); };
-                break;
+                if(plane[x][y-1] > 10 && plane[x][y-2] > 10 && plane[x+1][y-1] > 10 && plane[x-1][y-1] > 10){ dir = goDown(); } else { dir = goUp(); console.log('avoiding island - down'); };
               case 3:
-                if(plane[x-1][y] > 10 && plane[x-2][y] > 10){ dir = goLeft(); } else { dir = goRight(); };
-                break;
+                if(plane[x-1][y] > 10 && plane[x-2][y] > 10 && plane[x-1][y-1] > 10 && plane[x-1][y+1] > 10){ dir = goLeft(); } else { dir = goRight(); console.log('avoiding island - left'); };
             }
           }
 
+          // console.log('sailing');
           socket.emit('sailing', dir);
         }
     } else {
@@ -58,19 +56,23 @@ function bot(){
 function goDown(){
   // console.log('going down');
   return Math.floor(Math.random() * 90) + 90 + 45;
+  // return 180;
 }
 
 function goUp(){
   // console.log('going up');
   return Math.floor(Math.random() * 90) - 45;
+  // return 0;
 }
 
 function goLeft(){
   // console.log('going left');
   return Math.floor(Math.random() * 45) - 90;
+  // return -90;
 }
 
 function goRight(){
   // console.log('going right');
   return Math.floor(Math.random() * 90) + 45;
+  // return 90;
 }

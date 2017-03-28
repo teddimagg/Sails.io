@@ -14,28 +14,39 @@
     </ul>
   </div>
   <img src="img/loading.png" class="loading">
-  <div class="menu">
+  <div class="menu menuitem">
     <h2>Sails.io</h2>
     <p>SELECT A NAME AND SPAWN.</p>
-    <ul class="instructor">
-        <li>A key - Fire left cannon</li>
-        <li>D key - Fire right cannon</li>
-        <li>Shift - Sprint</li>
-    </ul>
+
     <form id="play">
       <input type="text" name="name" id="name" placeholder="Name" autofocus>
       <button class="play">PLAY</button>
     </form>
   </div>
-  <div class="gameMessage">
-    <h3></h3>
+
+  <div class="instructor menuitem">
+    <!-- <p>Instructions</p> -->
+    <div class="divider"></div>
+    <ul>
+        <li>A key <b>Fire left cannon</b></li>
+        <li>D key <b>Fire right cannon</b></li>
+        <li>Shift <b>Sprint</b></li>
+    </ul>
   </div>
-  <canvas id="canvas"></canvas>
+
+  <canvas id="canvas">
+
+  </canvas>
+
   <div class="leaderboard">
     <div class="healthbox">
       <div class="health">
       </div>
     </div>
+  </div>
+
+  <div class="gameMessage">
+    <h3></h3>
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/main.js"></script>

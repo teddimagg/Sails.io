@@ -32,6 +32,8 @@ var player = {
 var plane = null;
 var explotions = [];
 var guistruct = {hitmark: null};
+
+var scoreboardtick = 60;
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICAL PRELOAD
 // ------------------------------------------------------------------------------------- //
@@ -132,7 +134,7 @@ function playerinit(name){
         socket.emit('add user', name);
     }
 
-    $('.menu').hide();
+    $('.menuitem').hide();
     $('.play').prop('disabled', true);
     $('.healthbox').show();
 }
@@ -601,7 +603,7 @@ function gameReset(){
     //TODO: Gaining socket connection again not working!
     // socket = io();
     $('.play').prop('disabled', false);
-    $('.menu').show();
+    $('.menuitem').show();
     $('.users').hide();
     $('.healthbox').hide();
     $('.play').focus();
@@ -631,15 +633,29 @@ function keyController(event){
 // ------------------------------------------------------------------------------------- //
 
 function updateLeaderboard(){
-    var html = '';
-    for(var i in playerlist){
-        if(playerlist[i].alive){
-            html += '<li>' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
-        }
-    }
+    scoreboardtick--;
+    if(!scoreboardtick){
+        scoreboardtick = 60;
+        var html = '';
+        playerlist.sort(function(a, b){
+          return a.score < b.score;
+        });
 
-    $('.userlist').html(html);
-    $('.health').css('width', player.health + '%');
+        for(var i = 0; i < 10; i++){
+            if(playerlist[i]){
+                if(playerlist[i].alive){
+                    if(playerlist[i].id == player.id){
+                        html += '<li class="self">' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
+                    } else {
+                        html += '<li>' + playerlist[i].name + ' <b>' + playerlist[i].score.toFixed(0) +  '</b></li>'
+                    }
+                }
+            }
+        }
+
+        $('.userlist').html(html);
+        $('.health').css('width', player.health + '%');
+    }
 }
 
 function gameMessage(text){

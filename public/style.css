@@ -57,10 +57,17 @@ button {
   bottom: 30px;
   left: 30%;
   background: none;
-  border: 2px solid white;
-  border-radius: 25px;
+  background-color: rgba(255,255,255, 0.3);
+  border: none;
+  /*border: 2px solid white;*/
+  /*border-radius: 25px;*/
+  font-weight: 700;
   cursor: pointer;
-  color: white;
+  color: rgba(0,0,0,0.7);
+}
+
+button:active {
+  outline: none;
 }
 
 #name {
@@ -83,12 +90,12 @@ button {
   position: absolute;
   top: 0;
   left: 0;
-  height: 300px;
   width: 180px;
   background-color: rgba(255,255,255,0.2);
   font-weight: 700;
   font-family: 'Source Sans Pro', sans-serif;
   display: none;
+  color: rgba(0,0,0,0.5);
 }
 
 .users ul {
@@ -104,6 +111,11 @@ button {
   float: right;
   padding-right: 10px;
 }
+
+.self {
+  color: black;
+}
+
 
 /* LEADERBOARD */
 .healthbox {
@@ -143,12 +155,31 @@ button {
 }
 
 .instructor {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+
+  width: 300px;
+}
+
+.divider {
+  height: 4px;
+  background-color: rgba(255,255,255, 0.3);
+  margin: 10px 0;
+  width: 100%;
+}
+
+.instructor ul {
   list-style: none;
   padding: 0;
   margin: 0;
   color: white;
   font-family: 'Source Sans Pro', sans-serif;
+  text-transform: uppercase;
+  font-weight: 700;
 }
+
+.instructor ul b { float: right; };
 
 .loading {
   position: absolute;

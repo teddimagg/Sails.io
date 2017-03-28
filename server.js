@@ -6,7 +6,7 @@ const port = process.env.PORT || 3000;
 const _ = require('lodash');
 const uuidV4 = require('uuid/v4');
 const cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 
 app.use(cookieParser());
 app.use(bodyParser.json())
@@ -85,7 +85,9 @@ var _sprintcost = 4 / _tickrate;                    //8 per sec
 var _wreckcleanuprate = 30 * 1000;                  //Every 30 sec
 
 //MAP SETUP
+
 var plane = [];
+
 for(var i = 0; i < map.x; i++){
     plane[i] = [];
     for(var j = 0; j < map.y; j++){

@@ -1,0 +1,32 @@
+{
+  "map": {
+    "x": 350,
+    "y": 350,
+    "buffer": 30
+  },
+  "tickrate": 60,
+  "islandmargin": 0.23,
+  "shipmargin": 0.50,
+  "goldmargin": 0,
+  "crashturndeg": 0,
+  "crashturncurdeg": 3,
+  "crashislanpain": 1,
+  "crashplayerpain": 1,
+  "initspeed": 3,
+  "initrotatespeed": 1.5,
+  "outofboundpenalty": 15,
+  "sprintspeed": 4.2,
+  "sprintrotatespeed": 1,
+  "firespeed": 0.2,
+  "firecooldown": 3,
+  "firerange": 2,
+  "firedamage": 70,
+  "firedamagereduction": 0.6,
+  "firedamageblastradius": 1,
+  "healthregen": 1,
+  "alivescore": 0.5,
+  "killscore": 80,
+  "sprintcost": 4,
+  "wreckcleanuprate": 30,
+  "healthonwreckage": 30
+}

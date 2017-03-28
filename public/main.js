@@ -14,26 +14,20 @@ var range, offset;
 // ------------------------------------------------------------------------------------- //
     //  GAME VARIABLES
 // ------------------------------------------------------------------------------------- //
-var map = {
-    x: 450,
-    y: 450,
-    buffer: 30
-};
-
 var playerlist;
 var golds;
-var player = {
-    //init only for lobby purposes
-    // x: Math.ceil(Math.random() * (250 - 60)) + 30,
-    // y: Math.ceil(Math.random() * (250 - 60)) + 30
-    x: 162,
-    y: 162
-};
+var player;
 var plane = null;
 var explotions = [];
 var guistruct = {hitmark: null};
 
 var scoreboardtick = 60;
+// ------------------------------------------------------------------------------------- //
+    //  GAME VARIABLES
+// ------------------------------------------------------------------------------------- //
+
+var server;
+
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICAL PRELOAD
 // ------------------------------------------------------------------------------------- //
@@ -129,14 +123,13 @@ $( window ).resize(function() {
 var socket;
 
 function playerinit(name){
-    $('.users').show();
+    $('.gameitem').show();
     if(!player.alive){
         socket.emit('add user', name);
     }
 
     $('.menuitem').hide();
     $('.play').prop('disabled', true);
-    $('.healthbox').show();
 }
 
 function init(){
@@ -160,8 +153,14 @@ function init(){
         guistruct.hitmark = loc;
     });
 
-    socket.on('mapinit', function(data){
-        plane = data;
+    socket.on('gameinit', function(data){
+        plane = data.plane;
+        server = data.conf;
+        player = {
+            //init only for lobby purposes
+            x: Math.ceil(Math.random() * (server.map.x - 2*server.map.buffer - Math.ceil(width / tile.width))) + server.map.buffer + Math.ceil(width / tile.width / 2),
+            y: Math.ceil(Math.random() * (server.map.y - 2*server.map.buffer - Math.ceil(height / tile.height))) + server.map.buffer + Math.ceil(height / tile.height / 2)
+        }
     });
 
     socket.on('shipfleet', function(players){
@@ -308,7 +307,7 @@ function draw(){
         for(var y = range.y.min; y <= range.y.max; y++){
             //Out of boundaries printing
             if(plane[x][y] >= 0){
-                if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
+                if(x < server.map.buffer || y < server.map.buffer || x > server.map.x - server.map.buffer || y > server.map.y - server.map.buffer){
                     ctx.fillStyle = '#00007f';
                     ctx.fillRect(
                         i.x * tile.width  - offset.center.x - offset.player.x, //xpos
@@ -593,18 +592,11 @@ function updateMovements(){
 function gameReset(){
     gameMessage('You were killed by ' + player.lasttouch);
 
-    player = {
-        //init only for lobby purposes
-        x: Math.ceil(Math.random() * map.x - 2*map.buffer) + map.buffer,
-        y: Math.ceil(Math.random() * map.y - 2*map.buffer) + map.buffer
-    };
+    player = { x: 0, y: 0 };
 
-    //TODO: Gaining socket connection again not working!
-    // socket = io();
     $('.play').prop('disabled', false);
     $('.menuitem').show();
-    $('.users').hide();
-    $('.healthbox').hide();
+    $('.gameitem').hide();
     $('.play').focus();
 }
 

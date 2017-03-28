@@ -6,7 +6,10 @@ const port = process.env.PORT || 3000;
 const _ = require('lodash');
 const uuidV4 = require('uuid/v4');
 const cookieParser = require('cookie-parser');
+
 var bodyParser = require('body-parser');
+
+var CONF = require('./config.json');
 
 app.use(cookieParser());
 app.use(bodyParser.json())
@@ -29,6 +32,7 @@ app.post('/addusername', function(req, res){
 
     }
 });
+
 io.on('connection', onConnection);
 
 
@@ -40,57 +44,23 @@ var players = [];
 var golds = [];
 
 //MAP SIZE
-var map = {
-    x: 350,
-    y: 350,
-    buffer: 30
-};
-
-var _tickrate = 60; //frames per second
-
-//TRIGGERS
-var _islandmargin = 0.23;                           //% sailthroughness
-var _shipmargin = 0.50;                             //TODO: implement!!
-var _goldmargin = 0;                                //easy to pickup
-
-var _crashturndeg = 0;
-var _crashturncurdeg = 3;
-
-//PAIN ENDORSMENTS
-var _crashislanpain = 1;
-var _crashplayerpain = 1;
-
-//SAILING
-var _initspeed = (3) / _tickrate;                   //2.1 tiles per second
-var _initrotatespeed = 1.5                          //deg per frame
-var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
-var _sprintspeed = 1.6 * _initspeed;
-var _sprintrotatespeed = 1;
-
-//Combat
-var _firespeed = 0.2 * _tickrate + 10;              //seconds * tickrate // + 10 for explotionanim
-var _firecooldown = 3 * _tickrate                   //seconds
-var _firerange = 2                                  //tiles
-var _firedamage = 70                                //damage if direct hit
-var _firedamagereduction = 0.6                      //60% per tile away
-var _firedamageblastradius = 1
-
-//
-var _healthregen = 1 / _tickrate;                   //2 per sec
-var _alivescore = 0.5 / _tickrate;
-
-var _killscore = 80;
-var _sprintcost = 4 / _tickrate;                    //8 per sec
-
-var _wreckcleanuprate = 30 * 1000;                  //Every 30 sec
+CONF.initspeed /= CONF.tickrate;
+CONF.outofboundpenalty /= CONF.tickrate;
+CONF.sprintspeed /= CONF.tickrate;
+CONF.firespeed = CONF.firespeed * CONF.tickrate + 10;
+CONF.firecooldown *= CONF.tickrate;
+CONF.healthregen /= CONF.tickrate;
+CONF.alivescore /= CONF.tickrate;
+CONF.sprintcost /= CONF.tickrate;
+CONF.wreckcleanuprate *= 1000;
 
 //MAP SETUP
 
 var plane = [];
 
-for(var i = 0; i < map.x; i++){
+for(var i = 0; i < CONF.map.x; i++){
     plane[i] = [];
-    for(var j = 0; j < map.y; j++){
+    for(var j = 0; j < CONF.map.y; j++){
         plane[i][j] = Math.floor(Math.random() * 100);
     }
 }
@@ -102,33 +72,33 @@ for(var i = 0; i < map.x; i++){
 interval = setInterval(function(){
     io.emit('shipfleet', players);
     // io.emit('golds', golds);
-}, 1000/_tickrate)
+}, 1000/CONF.tickrate)
 
 setInterval(function(){
     _.remove(players, function(n){
         return !n.alive;
     });
-}, _wreckcleanuprate)
+}, CONF.wreckcleanuprate)
 
 //Multiplayer settings
 function onConnection(socket){
     var playerinterval;
-    socket.emit('mapinit', plane);
+
+    socket.emit('gameinit', {plane: plane, conf: CONF});
+
     console.log('Connection made');
     var player;
 
     socket.on('add user', function(name) {
         console.log(name + 'has started sailing!');
         player = socket.player = {
-            // x: Math.ceil(Math.random() * (map.x - 2*map.buffer)) + map.buffer,
-            // y: Math.ceil(Math.random() * (map.y - 2*map.buffer)) + map.buffer,
-            // x: 120,
-            // y: 120,
+            // x: Math.ceil(Math.random() * (CONF.map.x - 2*CONF.map.buffer)) + CONF.map.buffer,
+            // y: Math.ceil(Math.random() * (CONF.map.y - 2*CONF.map.buffer)) + CONF.map.buffer,
             x: Math.ceil(Math.random() * 10) + 160,
             y: Math.ceil(Math.random() * 10) + 160,
             curdir: 0,
             dir: 0,
-            speed: {sail: _initspeed, rotate: _initrotatespeed}, //tiles per tick, degs per tick
+            speed: {sail: CONF.initspeed, rotate: CONF.initrotatespeed}, //tiles per tick, degs per tick
             alive: true,
             health: 100,
             name: name,
@@ -140,7 +110,7 @@ function onConnection(socket){
         player.id = uuidV4();
         players.push(socket.player);
         socket.emit('playerInfo', player);
-        playerinterval = setInterval(updatePlayer, 1000/_tickrate)
+        playerinterval = setInterval(updatePlayer, 1000/CONF.tickrate)
     });
 
 
@@ -155,20 +125,20 @@ function onConnection(socket){
     socket.on('fire', function (direction) {
         if(direction == 'left'){
             if(!player.attack.left.cooldown){
-                var attack = findNewPoint(player.x, player.y, player.curdir - 180, _firerange);
-                attack.cooldown = _firecooldown;
+                var attack = findNewPoint(player.x, player.y, player.curdir - 180, CONF.firerange);
+                attack.cooldown = CONF.firecooldown;
                 attack.origx = player.x;
                 attack.origy = player.y;
-                attack.progr = _firespeed;
+                attack.progr = CONF.firespeed;
                 player.attack.left = attack;
             }
         } else if(direction == 'right'){
             if(!player.attack.right.cooldown){
-                var attack = findNewPoint(player.x, player.y, player.curdir, _firerange);
-                attack.cooldown = _firecooldown;
+                var attack = findNewPoint(player.x, player.y, player.curdir, CONF.firerange);
+                attack.cooldown = CONF.firecooldown;
                 attack.origx = player.x;
                 attack.origy = player.y;
-                attack.progr = _firespeed;
+                attack.progr = CONF.firespeed;
                 player.attack.right = attack;
             }
         }
@@ -178,7 +148,7 @@ function onConnection(socket){
         if(player){
             if(player.sprint && !b){
                 player.sprint = false;
-            } else if(!player.sprint && b && player.score > _sprintcost){
+            } else if(!player.sprint && b && player.score > CONF.sprintcost){
                 player.sprint = true;
             }
         }
@@ -196,13 +166,13 @@ function onConnection(socket){
         player = socket.player;
         if(player){
             if(socket.player && player.health > 0){
-                if(player.sprint && player.score > _sprintcost){
-                    player.speed.sail = _sprintspeed;
-                    player.speed.rotate = _sprintrotatespeed;
-                    player.score -= _sprintcost;
+                if(player.sprint && player.score > CONF.sprintcost){
+                    player.speed.sail = CONF.sprintspeed;
+                    player.speed.rotate = CONF.sprintrotatespeed;
+                    player.score -= CONF.sprintcost;
                 } else {
-                    player.speed.sail = _initspeed;
-                    player.speed.rotate = _initrotatespeed;
+                    player.speed.sail = CONF.initspeed;
+                    player.speed.rotate = CONF.initrotatespeed;
                 }
 
                 //check ground
@@ -213,9 +183,9 @@ function onConnection(socket){
                 player.curdir += getRotation(player);
                 player = moveDirection(player);
 
-                if(player.x < map.buffer || player.y < map.buffer || player.x > map.x - map.buffer || player.y > map.y - map.buffer){
+                if(player.x < CONF.map.buffer || player.y < CONF.map.buffer || player.x > CONF.map.x - CONF.map.buffer || player.y > CONF.map.y - CONF.map.buffer){
                     //TODO: hefur siglt out of bounds
-                    player.health -= _outofboundpenalty;
+                    player.health -= CONF.outofboundpenalty;
                 }
 
 
@@ -224,13 +194,13 @@ function onConnection(socket){
                 for(var i in players){
                     if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
                         if(players[i].alive){
-                            player.health -= _crashplayerpain;
+                            player.health -= CONF.crashplayerpain;
                             player = crashShip(player);
                             player.lasttouch = players[i].name;
-                            socket.emit('hit', {x: players[i].x, y: players[i].y, damage: _crashplayerpain});
+                            socket.emit('hit', {x: players[i].x, y: players[i].y, damage: CONF.crashplayerpain});
                         } else {
                             console.log('touching shipwreck!');
-                            player.score += players[i].score * 0.5;
+                            (player.health + CONF.healthonwreckage <= 100) ? player.health += CONF.healthonwreckage : player.health = 100;
                             _.remove(players, function(n){
                                 return n.id == players[i].id;
                             });
@@ -245,17 +215,17 @@ function onConnection(socket){
                     if(player.attack.left.progr <= 0){
                         for(i in players){
                             if(players[i].alive){
-                                if(player.attack.left.x - _firedamageblastradius < players[i].x && player.attack.left.x + _firedamageblastradius > players[i].x){
-                                    if(player.attack.left.y - _firedamageblastradius < players[i].y && player.attack.left.y + _firedamageblastradius > players[i].y){
+                                if(player.attack.left.x - CONF.firedamageblastradius < players[i].x && player.attack.left.x + CONF.firedamageblastradius > players[i].x){
+                                    if(player.attack.left.y - CONF.firedamageblastradius < players[i].y && player.attack.left.y + CONF.firedamageblastradius > players[i].y){
                                         var xprox = Math.abs(player.attack.left.x - players[i].x);
                                         var yprox = Math.abs(player.attack.left.y - players[i].y);
                                         var median = (xprox + yprox) / 2;
-                                        var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
+                                        var damage = Math.abs((CONF.firedamage * (1 - median * 2)).toFixed(0));
                                         players[i].health -= damage;
                                         players[i].lasttouch = player.name;
 
                                         if(players[i].health <= 0){
-                                            player.score += _killscore;
+                                            player.score += CONF.killscore;
                                         }
                                         socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
                                     }
@@ -270,16 +240,16 @@ function onConnection(socket){
                     if(player.attack.right.progr <= 0){
                         for(i in players){
                             if(players[i].alive){
-                                if(player.attack.right.x - _firedamageblastradius < players[i].x && player.attack.right.x + _firedamageblastradius > players[i].x){
-                                    if(player.attack.right.y - _firedamageblastradius < players[i].y && player.attack.right.y + _firedamageblastradius > players[i].y){
+                                if(player.attack.right.x - CONF.firedamageblastradius < players[i].x && player.attack.right.x + CONF.firedamageblastradius > players[i].x){
+                                    if(player.attack.right.y - CONF.firedamageblastradius < players[i].y && player.attack.right.y + CONF.firedamageblastradius > players[i].y){
                                         var xprox = Math.abs(player.attack.right.x - players[i].x);
                                         var yprox = Math.abs(player.attack.right.y - players[i].y);
                                         var median = (xprox + yprox) / 2;
-                                        var damage = Math.abs((_firedamage * (1 - median * 2)).toFixed(0));
+                                        var damage = Math.abs((CONF.firedamage * (1 - median * 2)).toFixed(0));
                                         players[i].health -= damage;
                                         players[i].lasttouch = player.name;
                                         if(players[i].health <= 0){
-                                            player.score += _killscore;
+                                            player.score += CONF.killscore;
                                         }
                                         socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
                                     }
@@ -290,9 +260,9 @@ function onConnection(socket){
                 };
 
                 if(player.attack.right.cooldown){player.attack.right.cooldown--};
-                player.score += _alivescore;
+                player.score += CONF.alivescore;
 
-                if(player.health < 100){player.health += _healthregen};
+                if(player.health < 100){player.health += CONF.healthregen};
 
                 players[_.findIndex(players, {'id': player.id})] = socket.player = player;
                 socket.emit('playerInfo', player);
@@ -363,8 +333,8 @@ function moveDirection(player){
 }
 
 function crashShip(player){
-    (Math.random() <= 0.5) ? player.curdir += _crashturncurdeg : player.curdir -= _crashturndeg;
-    (Math.random() <= 0.5) ? player.dir += _crashturndeg : player.dir -= _crashturndeg;
+    (Math.random() <= 0.5) ? player.curdir += CONF.crashturncurdeg : player.curdir -= CONF.crashturndeg;
+    (Math.random() <= 0.5) ? player.dir += CONF.crashturndeg : player.dir -= CONF.crashturndeg;
     return player;
 }
 
@@ -372,16 +342,16 @@ function crashIsland(player){
     var p = { x: player.x % 1, y: player.y % 1 };
     var deltahalf = { x: Math.abs(p.x - 0.5), y: Math.abs(p.y - 0.5) };
     var median = (deltahalf.x + deltahalf.y) / 2;
-    //(player.x % 1) > _islandmargin && (player.x % 1) < (1 - _islandmargin)
+    //(player.x % 1) > CONF.islandmargin && (player.x % 1) < (1 - CONF.islandmargin)
 
     if(median < 0.1){
         player.speed.sail = 0;
     } else {
-        player.speed.sail = _initspeed * 2 * (median - 0.1);
+        player.speed.sail = CONF.initspeed * 2 * (median - 0.1);
     }
 
-    if(0.5 - median > _islandmargin){
-        player.health -= _crashislanpain;
+    if(0.5 - median > CONF.islandmargin){
+        player.health -= CONF.crashislanpain;
     }
 
     player.sprint = false;

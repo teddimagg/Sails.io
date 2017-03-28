@@ -113,12 +113,12 @@ function onConnection(socket){
     socket.on('add user', function(name) {
         console.log(name + 'has started sailing!');
         player = socket.player = {
-            x: Math.ceil(Math.random() * (map.x - 2*map.buffer)) + map.buffer,
-            y: Math.ceil(Math.random() * (map.y - 2*map.buffer)) + map.buffer,
+            // x: Math.ceil(Math.random() * (map.x - 2*map.buffer)) + map.buffer,
+            // y: Math.ceil(Math.random() * (map.y - 2*map.buffer)) + map.buffer,
             // x: 120,
             // y: 120,
-            // x: Math.ceil(Math.random() * 3) + 160,
-            // y: Math.ceil(Math.random() * 3) + 160,
+            x: Math.ceil(Math.random() * 10) + 160,
+            y: Math.ceil(Math.random() * 10) + 160,
             curdir: 0,
             dir: 0,
             speed: {sail: _initspeed, rotate: _initrotatespeed}, //tiles per tick, degs per tick

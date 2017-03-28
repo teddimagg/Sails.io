@@ -27,4 +27,6 @@ https://powerful-retreat-19968.herokuapp.com/
 - [x] text feedback on cannonhits
 - [x] proximity calculated damage
 - [x] setting server side interval
-- [ ] add bots for testing purposes
+- [x] add bots for testing purposes
+- [x] random bot names
+- [x] clear wreckages on an interval

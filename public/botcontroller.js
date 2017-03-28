@@ -1,3 +1,13 @@
+var pirates = [
+'Barbarossa',
+'Sir Francis Drake',
+"L'Olonnais.",
+'Henry Morgan',
+'Captain Kidd',
+'Blackbeard',
+'Calico Jack',
+'Madame Cheng'];
+
 document.addEventListener('DOMContentLoaded', bot, false);
 
 function bot(){
@@ -43,6 +53,7 @@ function bot(){
         }
     } else {
       if(!hasclicked){
+        $('#name').val(pirates[Math.floor(Math.random() * pirates.length)]);
         $('.play').click();
         hasclicked = true;
         setTimeout(function() {

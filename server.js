@@ -64,7 +64,7 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (3) / _tickrate;                   //2.1 tiles per second
+var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;
@@ -85,6 +85,8 @@ var _alivescore = 0.5 / _tickrate;
 var _killscore = 80;
 var _sprintcost = 8 / _tickrate;
 
+var _wreckcleanuprate = 30 * 1000;                  //Every 30 sec
+
 //MAP SETUP
 var plane = [];
 for(var i = 0; i < map.x; i++){
@@ -102,6 +104,12 @@ interval = setInterval(function(){
     io.emit('shipfleet', players);
     // io.emit('golds', golds);
 }, 1000/_tickrate)
+
+setInterval(function(){
+    _.remove(players, function(n){
+        return !n.alive;
+    });
+}, _wreckcleanuprate)
 
 //Multiplayer settings
 function onConnection(socket){

@@ -151,7 +151,7 @@ function init(){
 
     socket.on('hit', function(loc){
         console.log('hitemit!');
-        loc.cooldown = 90;
+        loc.cooldown = 250;
         guistruct.hitmark = loc;
     });
 
@@ -513,7 +513,7 @@ function drawPlayers(){
                 ctx.fillStyle = 'rgba(180,61,11,1)';
                 ctx.font="bold 28px Sail";
                 ctx.textAlign="center";
-                ctx.fillText(guistruct.hitmark.damage, 0, -(90 - guistruct.hitmark.cooldown)/1.8);
+                ctx.fillText(guistruct.hitmark.damage, 0, (guistruct.hitmark.cooldown / 250) * tile.height - tile.height);
                 ctx.restore();
                 guistruct.hitmark.cooldown--;
             }

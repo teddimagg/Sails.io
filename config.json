@@ -26,7 +26,10 @@
   "healthregen": 1,
   "alivescore": 0.5,
   "killscore": 80,
+  "crashscore": 40,
+  "assistscore": 20,
   "sprintcost": 4,
   "wreckcleanuprate": 30,
-  "healthonwreckage": 30
+  "healthonwreckage": 30,
+  "assistwindow": 4
 }

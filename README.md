@@ -8,8 +8,8 @@ https://powerful-retreat-19968.herokuapp.com/
 ```
 
 ## Screens
-![alt tag](http://pasteboard.co/OH6CzPu6Q.png)
-![alt tag](http://pasteboard.co/OH72nlpPc.png)
+![alt tag](https://i.gyazo.com/1a5b49d40f47cb1426e35d94c7f6b8bc.png)
+![alt tag](https://i.gyazo.com/6db009aeeca87ba1a97f09c0d7311d75.png)
 
 ## Built With
 

@@ -669,8 +669,8 @@ function gameMessage(text){
 
 function unLoad(){
     loading = true;
-    $('.menu').show();
+    $('.menuitem').show();
     $('canvas').show();
-    $('.loading').hide();
+    $('#loader').hide();
 }
 

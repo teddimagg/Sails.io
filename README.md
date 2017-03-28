@@ -33,3 +33,4 @@ https://powerful-retreat-19968.herokuapp.com/
 - [x] add sprinting cababilities
 - [ ] different texture for corpses on sea and on land
 - [x] add zoom func to mwheel
+- [ ] feed init data (map size etc.) to client

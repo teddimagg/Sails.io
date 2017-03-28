@@ -54,6 +54,7 @@ CONF.alivescore /= CONF.tickrate;
 CONF.sprintcost /= CONF.tickrate;
 CONF.wreckcleanuprate *= 1000;
 CONF.assistwindow *= CONF.tickrate;
+CONF.notificationtime *= CONF.tickrate;
 
 //MAP SETUP
 
@@ -106,7 +107,8 @@ function onConnection(socket){
             attack: {left: {x: 0, y: 0, cooldown: 0}, right: {x: 0, y: 0, cooldown: 0}},
             score: 0,
             lasttouch: {p: 'yourself', c: -1},
-            sprint: false
+            sprint: false,
+            killstream: []
         };
         player.id = uuidV4();
         players.push(socket.player);
@@ -176,6 +178,16 @@ function onConnection(socket){
                     player.speed.rotate = CONF.initrotatespeed;
                 }
 
+                if(player.killstream.length){
+                    _.remove(player.killstream, function(n){
+                        return n.cooldown <= 0;
+                    });
+
+                    for(i in player.killstream){
+                        if(player.killstream[i].cooldown > 0){ player.killstream[i].cooldown--; }
+                    }
+                }
+
                 //check ground
                 if(plane[Math.floor(player.x)][Math.floor(player.y)] < 5){
                     player = crashIsland(player);
@@ -183,6 +195,7 @@ function onConnection(socket){
                         var pindex = _.findIndex(players, {'id': player.lasttouch.p});
                         if(players[pindex]){
                             players[pindex].score += CONF.assistscore;
+                            players[pindex].killstream.push({ type: 'assist', player: player.name, cooldown: CONF.notificationtime });
                         }
                     }
                 }
@@ -202,12 +215,14 @@ function onConnection(socket){
                     if(Math.ceil(player.x) == Math.ceil(players[i].x) && Math.ceil(player.y) == Math.ceil(players[i].y) && player.id != players[i].id){
                         if(players[i].alive){
                             player.health -= CONF.crashplayerpain;
-                            if(player.health < 0){players[i].score += CONF.crashscore};
+                            if(player.health < 0){
+                                players[i].score += CONF.crashscore
+                                players[i].killstream.push({ type: 'kill', player: player.name, cooldown: CONF.notificationtime });
+                            };
                             player = crashShip(player);
                             player.lasttouch = {p: players[i].id, n: players[i].name, c: CONF.assistwindow};
                             socket.emit('hit', {x: players[i].x, y: players[i].y, damage: CONF.crashplayerpain});
                         } else {
-                            console.log('touching shipwreck!');
                             (player.health + CONF.healthonwreckage <= 100) ? player.health += CONF.healthonwreckage : player.health = 100;
                             _.remove(players, function(n){
                                 return n.id == players[i].id;
@@ -234,6 +249,7 @@ function onConnection(socket){
 
                                         if(players[i].health <= 0){
                                             player.score += CONF.killscore;
+                                            player.killstream.push({ type: 'kill', player: players[i].name, cooldown: CONF.notificationtime });
                                         }
                                         socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
                                     }
@@ -258,6 +274,7 @@ function onConnection(socket){
                                         players[i].lasttouch = {p: player.id, n: players[i].name, c: CONF.assistwindow};
                                         if(players[i].health <= 0){
                                             player.score += CONF.killscore;
+                                            player.killstream.push({ type: 'kill', player: players[i].name, cooldown: CONF.notificationtime });
                                         }
                                         socket.emit('hit', {x: players[i].x, y: players[i].y, damage: damage});
                                     }

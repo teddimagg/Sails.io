@@ -363,7 +363,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        2*tile.width,
+        server.firerange * tile.width,
         -0.125*Math.PI,
         0.125*Math.PI);
     ctx.stroke();
@@ -371,7 +371,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        2*tile.width,
+        server.firerange * tile.width,
         0.875*Math.PI,
         1.125*Math.PI);
     ctx.stroke();
@@ -383,7 +383,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        2*tile.width,
+        server.firerange * tile.width,
         rcooldown*Math.PI,
         0.125*Math.PI);
     ctx.stroke();
@@ -392,13 +392,33 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        2*tile.width,
+        server.firerange * tile.width,
         0.875*Math.PI,
         lcooldown*Math.PI);
     ctx.stroke();
 
+
     ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
     ctx.restore();
+
+    if(player.killstream.length){
+        for(var i in player.killstream){
+            console.log(player.killstream[i]);
+            ctx.save();
+            ctx.translate((width / 2), (height / 2));
+            var ratio = (player.killstream[i].cooldown / server.notificationtime);
+
+            ctx.fillStyle = 'rgba(180,61,11,' + ratio + ')';
+            ctx.font="bold 20px Sail";
+            ctx.textAlign="center";
+
+            var string;
+            (player.killstream[i].type == 'kill') ? string = 'You killed ' : string = 'You assisted the death of ';
+            ctx.fillText(string + player.killstream[i].player, 0, -ratio*(height/4) - (height/4));
+            ctx.restore();
+        }
+    }
+
 }
 
 function drawPlayers(){

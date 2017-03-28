@@ -13,13 +13,13 @@
   "crashislanpain": 1,
   "crashplayerpain": 1,
   "initspeed": 3,
-  "initrotatespeed": 1.5,
+  "initrotatespeed": 2,
   "outofboundpenalty": 15,
   "sprintspeed": 4.2,
-  "sprintrotatespeed": 1,
+  "sprintrotatespeed": 1.5,
   "firespeed": 0.2,
   "firecooldown": 3,
-  "firerange": 2,
+  "firerange": 1.5,
   "firedamage": 70,
   "firedamagereduction": 0.6,
   "firedamageblastradius": 1,
@@ -31,5 +31,6 @@
   "sprintcost": 4,
   "wreckcleanuprate": 30,
   "healthonwreckage": 30,
-  "assistwindow": 4
+  "assistwindow": 4,
+  "notificationtime": 1.5
 }

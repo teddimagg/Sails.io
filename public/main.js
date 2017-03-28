@@ -24,8 +24,10 @@ var playerlist;
 var golds;
 var player = {
     //init only for lobby purposes
-    x: Math.ceil(Math.random() * (250 - 60)) + 30,
-    y: Math.ceil(Math.random() * (250 - 60)) + 30
+    // x: Math.ceil(Math.random() * (250 - 60)) + 30,
+    // y: Math.ceil(Math.random() * (250 - 60)) + 30
+    x: 162,
+    y: 162
 };
 var plane = null;
 var explotions = [];

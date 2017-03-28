@@ -17,17 +17,14 @@ app.post('/addusername', function(req, res){
     var existingCookie = req.cookies.cachedUsername;
     if(existingCookie === undefined){
         res.cookie('cachedUsername', req.body.name, { });
-        res.status(201).send('cookie created successfully')
-        console.log('cookie created successfully');
+        res.status(201).send('cookie created successfully');
     } else {
         if(req.body.name === existingCookie){
             console.log('same name');
             res.cookie('cachedUsername', existingCookie, { });
-            res.status(200).send('Same name');
         } else {
             res.cookie('cachedUsername', req.body.name, { });
             res.status(200).send('setting new cookie name');
-            console.log("setting new cookie name", req.body.name);
         }
 
     }
@@ -64,7 +61,7 @@ var _crashislanpain = 1;
 var _crashplayerpain = 1;
 
 //SAILING
-var _initspeed = (0) / _tickrate;                   //2.1 tiles per second
+var _initspeed = (3) / _tickrate;                   //2.1 tiles per second
 var _initrotatespeed = 1.5                          //deg per frame
 var _outofboundpenalty = 15 / _tickrate;            //hp down per sec
 var _sprintspeed = 1.5 * _initspeed;

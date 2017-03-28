@@ -195,4 +195,18 @@ button:active {
   font-weight: 700;
 }
 
-.instructor ul b { float: right; };
+.instructor ul b { float: right; }
+
+.suggestions {
+  position: absolute;
+  display: none;
+  right: 20px;
+  bottom: 20px;
+  width: 120px;
+  text-align: center;
+}
+
+.suggestions img {
+  width: 100px;
+  margin-left: calc(50% - 50px);
+}

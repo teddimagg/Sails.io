@@ -156,7 +156,6 @@ function init(){
     });
 
     socket.on('hit', function(loc){
-        console.log('hitemit!');
         loc.cooldown = 250;
         guistruct.hitmark = loc;
     });

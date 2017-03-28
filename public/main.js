@@ -202,6 +202,23 @@ function mouseController(event){
     }
 }
 
+//zoom in controller
+$(document).bind('mousewheel', function(e){
+    //TODO: limit zoom
+    if(e.originalEvent.wheelDelta /120 > 0) {
+        if(tile.width < 150 && tile.height < 150){
+            tile.width++;
+            tile.height++;
+        }
+    }
+    else{
+        if(tile.width > 50 && tile.height > 50){
+            tile.width--;
+            tile.height--;
+        }
+    }
+});
+
 
 // ------------------------------------------------------------------------------------- //
     //  GRAPHICS ENGINE
@@ -266,38 +283,40 @@ function draw(){
     for(var x = range.x.min; x <= range.x.max; x++){
         for(var y = range.y.min; y <= range.y.max; y++){
             //Out of boundaries printing
-            if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
-                ctx.fillStyle = '#00007f';
-                ctx.fillRect(
-                    i.x * tile.width  - offset.center.x - offset.player.x, //xpos
-                    i.y * tile.height - offset.center.y - offset.player.y, //ypos
-                    tile.width, tile.height //x,y size
-                );
-            } else {
-                if(plane[x][y] < 5){
-                    ctx.save();
-                    ctx.translate(
-                        i.x * tile.width  - offset.center.x - offset.player.x + tile.width/2, //x
-                        i.y * tile.height - offset.center.y - offset.player.y + tile.height/2 //y
+            if(plane[x][y] >= 0){
+                if(x < map.buffer || y < map.buffer || x > map.x - map.buffer || y > map.y - map.buffer){
+                    ctx.fillStyle = '#00007f';
+                    ctx.fillRect(
+                        i.x * tile.width  - offset.center.x - offset.player.x, //xpos
+                        i.y * tile.height - offset.center.y - offset.player.y, //ypos
+                        tile.width, tile.height //x,y size
                     );
-                    ctx.rotate(random(x + y) * 180 * Math.PI / 180);
-                    switch(plane[x][y]){
-                        case 0: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 1: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 2: ctx.drawImage(islandImg2, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 3: ctx.drawImage(islandImg3, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
-                        case 4: ctx.drawImage(islandImg4, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                } else {
+                    if(plane[x][y] < 5){
+                        ctx.save();
+                        ctx.translate(
+                            i.x * tile.width  - offset.center.x - offset.player.x + tile.width/2, //x
+                            i.y * tile.height - offset.center.y - offset.player.y + tile.height/2 //y
+                        );
+                        ctx.rotate(random(x + y) * 180 * Math.PI / 180);
+                        switch(plane[x][y]){
+                            case 0: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                            case 1: ctx.drawImage(islandImg,  -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                            case 2: ctx.drawImage(islandImg2, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                            case 3: ctx.drawImage(islandImg3, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                            case 4: ctx.drawImage(islandImg4, -tile.width/2, -tile.height/2, tile.width, tile.height); break;
+                        }
+                        ctx.restore();
                     }
-                    ctx.restore();
                 }
-            }
 
-            if(debugMode){
-                ctx.fillStyle = '#ffffff';
-                ctx.drawImage(debugImg    , i.x * tile.width - offset.center.x - offset.player.x    , i.y * tile.height - offset.center.y - offset.player.y     , tile.width, tile.height);
-                ctx.fillText(x + " - " + y, i.x * tile.width - offset.center.x - offset.player.x + 5, i.y * tile.height - offset.center.y - offset.player.y + 15, tile.width, tile.height);
+                if(debugMode){
+                    ctx.fillStyle = '#ffffff';
+                    ctx.drawImage(debugImg    , i.x * tile.width - offset.center.x - offset.player.x    , i.y * tile.height - offset.center.y - offset.player.y     , tile.width, tile.height);
+                    ctx.fillText(x + " - " + y, i.x * tile.width - offset.center.x - offset.player.x + 5, i.y * tile.height - offset.center.y - offset.player.y + 15, tile.width, tile.height);
+                }
+                i.y++;
             }
-            i.y++;
         }
         i.y = 0;
         i.x++;
@@ -321,7 +340,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        200,
+        2*tile.width,
         -0.125*Math.PI,
         0.125*Math.PI);
     ctx.stroke();
@@ -329,7 +348,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        200,
+        2*tile.width,
         0.875*Math.PI,
         1.125*Math.PI);
     ctx.stroke();
@@ -341,7 +360,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        200,
+        2*tile.width,
         rcooldown*Math.PI,
         0.125*Math.PI);
     ctx.stroke();
@@ -350,7 +369,7 @@ function drawPlayer(){
     ctx.arc(
         0,
         0,
-        200,
+        2*tile.width,
         0.875*Math.PI,
         lcooldown*Math.PI);
     ctx.stroke();

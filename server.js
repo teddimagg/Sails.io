@@ -212,6 +212,7 @@ function onConnection(socket){
                             player.health -= _crashplayerpain;
                             player = crashShip(player);
                             player.lasttouch = players[i].name;
+                            socket.emit('hit', {x: players[i].x, y: players[i].y, damage: _crashplayerpain});
                         } else {
                             console.log('touching shipwreck!');
                             player.score += players[i].score * 0.5;
@@ -283,7 +284,7 @@ function onConnection(socket){
             } else {
                 if(player){
                     player.health = 0;
-                    console.log(player.name + " was killed by " + player.lasttouch);
+                    // console.log(player.name + " was killed by " + player.lasttouch);
                     clearInterval(playerinterval);
                     player.alive = false;
                     socket.emit('playerInfo', player);

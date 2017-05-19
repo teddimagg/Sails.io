@@ -1,5 +1,8 @@
 # Sails.io
-A multiplayer canvas game set at sea.
+A real time multiplayer game set at sea. 
+With a custom built canvas graphics engine nicely integrated into a Socket.io communications web socket.
+In game graphics credits: Daria Yakovleva at ShutterStock
+
 
 # Live server
 
@@ -13,6 +16,7 @@ https://powerful-retreat-19968.herokuapp.com/
 
 ## Built With
 
+* [HTML5 canvas](https://www.w3schools.com/html/html5_canvas.asp) - The graphical engine is built on canvas
 * [Node.js](https://nodejs.org/en/) - The web framework used
 * [Express](https://maven.apache.org/) - Module used to setup static server and routing
 * [Socket.io](https://rometools.github.io/rome/) - For real time communications

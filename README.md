@@ -4,7 +4,7 @@ With a custom built canvas graphics engine nicely integrated into a Socket.io co
 In game graphics credits: Daria Yakovleva at ShutterStock
 
 
-# Live server
+## Live server
 
 ```
 https://powerful-retreat-19968.herokuapp.com/

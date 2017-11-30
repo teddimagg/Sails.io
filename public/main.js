@@ -190,6 +190,7 @@ function init(){
 
 
 function tick(){
+    console.log(player.dir);
     if(plane && player){ //loading
         ctx.clearRect(0, 0, width, height);
         drawBackground();
@@ -211,7 +212,7 @@ function mouseController(event){
     if(player.alive){
         var mouse = {x: event.clientX, y: event.clientY};
         var rad = Math.atan2(mouse.y - height / 2, mouse.x - width / 2) * 180 / Math.PI + 90;
-        player.dir = rad;
+        player.dir = rad.toFixed(2);
     }
 }
 
@@ -618,7 +619,9 @@ function drawBackground(){
 // ------------------------------------------------------------------------------------- //
 
 function updateMovements(){
+    if(player.last && player.last == player.dir) return;
     socket.emit('sailing', player.dir);
+    player.last = player.dir;
 }
 
 function gameReset(){

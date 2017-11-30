@@ -33,10 +33,14 @@ var server;
 // ------------------------------------------------------------------------------------- //
 //Graphics variables
 var playerImg = new Image(), wreckImg = new Image();
-playerImg.src = 'img/ship.png';
+playerImg.src = 'img/ships.png';
 wreckImg.src = 'img/shipwreck.png';
 playerImg.onload = function() {console.log('ship built')};
 wreckImg.onload = function() {console.log('wreckage found')};
+var playerAnim = {
+    i: 0,
+    stage: 0
+}
 
 //Islands
 var islandImg = new Image(), islandImg2 = new Image(), islandImg3 = new Image(), islandImg4 = new Image();
@@ -397,8 +401,16 @@ function drawPlayer(){
         lcooldown*Math.PI);
     ctx.stroke();
 
-
-    ctx.drawImage(playerImg, -(tile.width / 2), -(tile.height / 2), tile.width, tile.height);
+    if(playerAnim.i == 10){
+        playerAnim.stage++;
+        playerAnim.i = 0;
+    } else {
+        playerAnim.i++;
+    }
+    if(playerAnim.stage == 10){
+        playerAnim.stage = 0;
+    }
+    ctx.drawImage(playerImg, Math.ceil(playerAnim.stage * 211), 0, 211, 340, -(tile.width*0.62 / 2), -(tile.height / 2), (tile.width*0.62), tile.height);
     ctx.restore();
 
     if(player.killstream.length){

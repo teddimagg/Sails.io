@@ -22,7 +22,6 @@ https://powerful-retreat-19968.herokuapp.com/
 * [Socket.io](https://rometools.github.io/rome/) - For real time communications
 
 ## Todo
-27.03'17
 - [x] keep player copy ingame after death
 - [x] make corpses pickable by other players
 - [x] text feedback on cannonhits
@@ -31,8 +30,6 @@ https://powerful-retreat-19968.herokuapp.com/
 - [x] add bots for testing purposes
 - [x] random bot names
 - [x] clear wreckages on an interval
-
-28.03'17
 - [ ] fix cannonball animation while rotating glitch
 - [x] add sprinting cababilities
 - [ ] different texture for corpses on sea and on land
@@ -40,4 +37,5 @@ https://powerful-retreat-19968.herokuapp.com/
 - [ ] feed init data (map size etc.) to client
 - [ ] register shot and damage on passing ship
 - [ ] add suggestion box
-- [ ] buy artwork https://www.assetstore.unity3d.com/en/#!/content/35604
+- [x] buy artwork [here](https://www.assetstore.unity3d.com/en/#!/content/35604)
+- [ ] update game with new assets

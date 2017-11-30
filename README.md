@@ -40,3 +40,4 @@ https://powerful-retreat-19968.herokuapp.com/
 - [ ] feed init data (map size etc.) to client
 - [ ] register shot and damage on passing ship
 - [ ] add suggestion box
+- [ ] buy artwork https://www.assetstore.unity3d.com/en/#!/content/35604
